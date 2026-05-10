@@ -85,6 +85,10 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                     <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                     Data Subkriteria
                                 </a>
+                                <a class='nav-link' href='data-matriks-perbandingan.php'>
+                                    <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
+                                    Data Matriks Perbandingan
+                                </a>
                                 ";
                         }
                         ?>
@@ -92,10 +96,10 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
                         </a>
-                        <a class="nav-link" href="data-perhitungan.php">
+                        <!-- <a class="nav-link" href="data-perhitungan.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-calculator"></i></div>
                             Data Perhitungan
-                        </a>
+                        </a> -->
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>

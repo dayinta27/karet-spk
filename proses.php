@@ -202,6 +202,59 @@ if (isset($_POST['edit-alternatif'])) {
 }
 
 // ========================================================================
+// SIMPAN MATRIKS PERBANDINGAN AHP
+// ========================================================================
+if (isset($_POST['simpan_matriks'])) {
+
+    $nilai_matriks = $_POST['matriks'];
+
+    // Ambil semua id_kriteria dari database
+    $q_krit = mysqli_query($koneksi, "SELECT id_kriteria FROM kriteria ORDER BY id_kriteria");
+    $ids = [];
+    while ($r = mysqli_fetch_array($q_krit)) {
+        $ids[] = $r['id_kriteria'];
+    }
+    $n = count($ids);
+
+    // Hapus data lama
+    mysqli_query($koneksi, "DELETE FROM matriks_perbandingan");
+
+    $success = true;
+    foreach ($ids as $i => $id_i) {
+        foreach ($ids as $j => $id_j) {
+
+            if ($i == $j) {
+                $nilai = 1;
+            } elseif ($i < $j) {
+                $nilai = floatval($nilai_matriks[$id_i][$id_j] ?? 1);
+            } else {
+                $nilai = 1 / floatval($nilai_matriks[$id_j][$id_i] ?? 1);
+            }
+
+            $stmt = mysqli_prepare($koneksi, "
+                INSERT INTO matriks_perbandingan (id_kriteria_i, id_kriteria_j, nilai)
+                VALUES (?, ?, ?)
+            ");
+            mysqli_stmt_bind_param($stmt, 'iid', $id_i, $id_j, $nilai);
+            $exec = mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+
+            if (!$exec) {
+                $success = false;
+                break 2;
+            }
+        }
+    }
+
+    if ($success) {
+        header("Location: data-matriks-perbandingan.php?validasi=sukses");
+    } else {
+        header("Location: data-matriks-perbandingan.php?validasi=error");
+    }
+    exit;
+}
+
+// ========================================================================
 // PROSES PERHITUNGAN
 // ========================================================================
 if (isset($_POST['hitung'])) {
@@ -209,7 +262,7 @@ if (isset($_POST['hitung'])) {
     $pilih = isset($_POST['pilih']) ? $_POST['pilih'] : 0;
 
     if ($pilih == 0 || count($pilih) < 2) {
-        header("Location: data-perhitungan.php?validasi=error");
+        header("Location: proses-perhitungan.php?validasi=error");
     } else {
         $cek = mysqli_query($koneksi, "SELECT * FROM checked WHERE username = '$user'");
         if (mysqli_num_rows($cek) > 0) {
@@ -226,10 +279,10 @@ if (isset($_POST['hitung'])) {
                 if ($success) {
                     header("Location: proses-perhitungan.php?validasi=sukses");
                 } else {
-                    header("Location: data-perhitungan.php?validasi=error");
+                    header("Location: proses-perhitungan.php?validasi=error");
                 }
             } else {
-                header("Location: data-perhitungan.php?validasi=error");
+                header("Location: proses-perhitungan.php?validasi=error");
             }
         } else {
             $success = true;
@@ -243,7 +296,7 @@ if (isset($_POST['hitung'])) {
             if ($success) {
                 header("Location: proses-perhitungan.php?validasi=sukses");
             } else {
-                header("Location: data-perhitungan.php?validasi=error");
+                header("Location: proses-perhitungan.php?validasi=error");
             }
         }
     }

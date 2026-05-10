@@ -85,7 +85,9 @@ if (empty($alternatif_list)) {
     exit;
 }
 
-// Ambil data kriteria beserta jenisnya
+// ========================================================================
+// AMBIL DATA KRITERIA
+// ========================================================================
 $query_kriteria = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
 $kriteria_data  = [];
 $kriteria_types = [];
@@ -94,131 +96,117 @@ while ($k = mysqli_fetch_array($query_kriteria)) {
     $kriteria_types[$k['id_kriteria']] = $k['jenis_kriteria'];
 }
 
-// ========================================================================
-// BUAT MATRIKS KEPUTUSAN
-// ========================================================================
-$matriks        = [];
-$alternatif_ids = [];
+// Jumlah kriteria dan alternatif
+$n              = count($kriteria_data);
+$m              = count($alternatif_list);
+$alternatif_ids = $alternatif_list;
 
-foreach ($alternatif_list as $id_alt) {
-    $row_data = [];
+// Tabel Random Index (RI) Saaty
+$RI_TABLE = [
+    1  => 0.00,
+    2  => 0.00,
+    3  => 0.58,
+    4  => 0.90,
+    5  => 1.12,
+    6  => 1.24,
+    7  => 1.32,
+    8  => 1.41,
+    9  => 1.45,
+    10 => 1.49,
+];
 
-    foreach ($kriteria_data as $krit) {
-        $id_krit         = $krit['id_kriteria'];
-        $query_kebutuhan = mysqli_query($koneksi, "
-            SELECT s.nilai_subkriteria 
-            FROM matriks m 
-            JOIN subkriteria s ON m.id_subkriteria = s.id_subkriteria 
+// ========================================================================
+// SUSUN MATRIKS PERBANDINGAN AHP DARI DATABASE
+// ========================================================================
+$matriks_perbandingan = [];
+foreach ($kriteria_data as $idx_i => $k_i) {
+    $id_i = $k_i['id_kriteria'];
+    foreach ($kriteria_data as $idx_j => $k_j) {
+        $id_j = $k_j['id_kriteria'];
+        $q    = mysqli_query($koneksi, "
+            SELECT nilai FROM matriks_perbandingan
+            WHERE id_kriteria_i = '$id_i' AND id_kriteria_j = '$id_j'
+        ");
+        $row  = mysqli_fetch_array($q);
+        $matriks_perbandingan[$idx_i][$idx_j] = $row ? floatval($row['nilai']) : 1.0;
+    }
+}
+
+// ========================================================================
+// HITUNG AHP
+// ========================================================================
+
+// Langkah 1: Jumlah setiap kolom
+$jumlah_kolom = array_fill(0, $n, 0.0);
+for ($j = 0; $j < $n; $j++) {
+    for ($i = 0; $i < $n; $i++) {
+        $jumlah_kolom[$j] += $matriks_perbandingan[$i][$j];
+    }
+}
+
+// Langkah 2: Normalisasi matriks
+$matriks_norm = [];
+for ($i = 0; $i < $n; $i++) {
+    for ($j = 0; $j < $n; $j++) {
+        $matriks_norm[$i][$j] = ($jumlah_kolom[$j] > 0)
+            ? $matriks_perbandingan[$i][$j] / $jumlah_kolom[$j]
+            : 0;
+    }
+}
+
+// Langkah 3: Bobot prioritas = rata-rata baris
+$bobot = [];
+for ($i = 0; $i < $n; $i++) {
+    $bobot[$i] = array_sum($matriks_norm[$i]) / $n;
+}
+
+// Langkah 4: Lambda maksimum
+$lambda_maks = 0;
+for ($j = 0; $j < $n; $j++) {
+    $lambda_maks += $jumlah_kolom[$j] * $bobot[$j];
+}
+
+// Langkah 5: CI
+$CI = ($n > 1) ? ($lambda_maks - $n) / ($n - 1) : 0;
+
+// Langkah 6: RI
+$RI = isset($RI_TABLE[$n]) ? $RI_TABLE[$n] : 1.49;
+
+// Langkah 7: CR
+$CR = ($RI > 0) ? $CI / $RI : 0;
+
+// Status konsistensi
+if ($CR < 0.1) {
+    $status_konsistensi = 'Konsisten';
+} elseif ($CR < 0.2) {
+    $status_konsistensi = 'Cukup Konsisten';
+} else {
+    $status_konsistensi = 'Tidak Konsisten — Perlu Direvisi';
+}
+
+// ========================================================================
+// SUSUN MATRIKS KEPUTUSAN TOPSIS DARI TABEL matriks
+// ========================================================================
+$matriks = [];
+foreach ($alternatif_list as $idx_i => $id_alt) {
+    foreach ($kriteria_data as $idx_j => $k) {
+        $id_krit = $k['id_kriteria'];
+        $q       = mysqli_query($koneksi, "
+            SELECT s.nilai_subkriteria
+            FROM matriks m
+            JOIN subkriteria s ON m.id_subkriteria = s.id_subkriteria
             WHERE m.id_alternatif = '$id_alt' AND m.id_kriteria = '$id_krit'
         ");
-
-        if ($data_kebutuhan = mysqli_fetch_array($query_kebutuhan)) {
-            $row_data[] = floatval($data_kebutuhan['nilai_subkriteria']);
-        } else {
-            $row_data[] = 1;
-        }
+        $row                    = mysqli_fetch_array($q);
+        $matriks[$idx_i][$idx_j] = $row ? floatval($row['nilai_subkriteria']) : 0;
     }
-
-    $matriks[]        = $row_data;
-    $alternatif_ids[] = $id_alt;
 }
 
 // ========================================================================
-// METODE CRITIC (Pembobotan Kriteria)
-// ========================================================================
-$matriks_critic = $matriks;
-$m              = count($matriks_critic);
-$n              = count($matriks_critic[0]);
-
-// Langkah 1: Normalisasi CRITIC (Min-Max)
-$norm_critic = [];
-for ($j = 0; $j < $n; $j++) {
-    $col_values = array_column($matriks_critic, $j);
-    $min_val    = min($col_values);
-    $max_val    = max($col_values);
-    $range      = $max_val - $min_val;
-    $id_krit    = $kriteria_data[$j]['id_kriteria'];
-    $jenis      = $kriteria_types[$id_krit];
-
-    for ($i = 0; $i < $m; $i++) {
-        if ($range == 0) {
-            $norm_critic[$i][$j] = 1.0;
-        } else {
-            if ($jenis == 'Benefit') {
-                $norm_critic[$i][$j] = ($matriks_critic[$i][$j] - $min_val) / $range;
-            } else {
-                $norm_critic[$i][$j] = ($max_val - $matriks_critic[$i][$j]) / $range;
-            }
-        }
-    }
-}
-
-// Langkah 2: Hitung Standar Deviasi
-$std_dev = [];
-for ($j = 0; $j < $n; $j++) {
-    $col      = array_column($norm_critic, $j);
-    $mean     = array_sum($col) / count($col);
-    $variance = 0;
-    foreach ($col as $val) {
-        $variance += pow($val - $mean, 2);
-    }
-    $std_dev[$j] = sqrt($variance / max(1, (count($col) - 1)));
-}
-
-// Langkah 3: Hitung Korelasi
-$corr_matrix = [];
-for ($j1 = 0; $j1 < $n; $j1++) {
-    for ($j2 = 0; $j2 < $n; $j2++) {
-        if ($j1 == $j2) {
-            $corr_matrix[$j1][$j2] = 1.0;
-        } else {
-            $col1  = array_column($norm_critic, $j1);
-            $col2  = array_column($norm_critic, $j2);
-            $mean1 = array_sum($col1) / count($col1);
-            $mean2 = array_sum($col2) / count($col2);
-
-            $numerator = 0;
-            $sum_sq1   = 0;
-            $sum_sq2   = 0;
-
-            for ($i = 0; $i < count($col1); $i++) {
-                $diff1      = $col1[$i] - $mean1;
-                $diff2      = $col2[$i] - $mean2;
-                $numerator += $diff1 * $diff2;
-                $sum_sq1   += $diff1 * $diff1;
-                $sum_sq2   += $diff2 * $diff2;
-            }
-
-            $denominator           = sqrt($sum_sq1 * $sum_sq2);
-            $corr_matrix[$j1][$j2] = ($denominator == 0) ? 0 : $numerator / $denominator;
-        }
-    }
-}
-
-// Langkah 4: Hitung Informasi Kriteria (Cj)
-$Cj = [];
-for ($j = 0; $j < $n; $j++) {
-    $sum_one_minus_r = 0;
-    for ($k = 0; $k < $n; $k++) {
-        if ($j != $k) {
-            $sum_one_minus_r += (1 - $corr_matrix[$j][$k]);
-        }
-    }
-    $Cj[$j] = $std_dev[$j] * $sum_one_minus_r;
-}
-
-// Langkah 5: Hitung Bobot
-$sum_Cj  = array_sum($Cj);
-$weights = [];
-for ($j = 0; $j < $n; $j++) {
-    $weights[$j] = ($sum_Cj == 0) ? (1.0 / $n) : ($Cj[$j] / $sum_Cj);
-}
-
-// ========================================================================
-// METODE TOPSIS (Perangkingan Alternatif)
+// METODE TOPSIS
 // ========================================================================
 
-// Langkah 1: Normalisasi TOPSIS (Vector Normalization)
+// Langkah 1: Normalisasi Vector
 $R            = [];
 $denominators = [];
 
@@ -240,7 +228,7 @@ for ($j = 0; $j < $n; $j++) {
 $Y = [];
 for ($i = 0; $i < $m; $i++) {
     for ($j = 0; $j < $n; $j++) {
-        $Y[$i][$j] = $R[$i][$j] * $weights[$j];
+        $Y[$i][$j] = $R[$i][$j] * $bobot[$j];
     }
 }
 
@@ -256,17 +244,17 @@ for ($j = 0; $j < $n; $j++) {
     $denom        = $denominators[$j];
 
     $r_petani[$j] = ($denom == 0) ? 0 : $nilai_petani / $denom;
-    $y_petani[$j] = $r_petani[$j] * $weights[$j];
+    $y_petani[$j] = $r_petani[$j] * $bobot[$j];
 }
 
 // ========================================================================
 // Langkah 3: Solusi Ideal
 // ========================================================================
 
-// A⁺ = Input petani terbobot
+// A+ = Input petani terbobot
 $y_plus = $y_petani;
 
-// A⁻ = Nilai ekstrem berdasarkan benefit/cost
+// A- = Nilai ekstrem berdasarkan benefit/cost
 $y_minus = [];
 for ($j = 0; $j < $n; $j++) {
     $col     = array_column($Y, $j);
@@ -317,33 +305,40 @@ foreach ($kriteria_data as $krit) {
 // SIMPAN DATA HASIL KE SESSION
 // ========================================================================
 $_SESSION['data_hasil'] = [
-    'kondisi_lahan'     => $kondisi_lahan,
-    'alternatif_list'   => $alternatif_list,
-    'alternatif_ids'    => $alternatif_ids,
-    'alternatif_names'  => $alternatif_names,
-    'kriteria_data'     => $kriteria_data,
-    'kriteria_names'    => $kriteria_names,
-    'matriks_keputusan' => $matriks,
-    'matriks_critic'    => $matriks_critic,
-    'norm_critic'       => $norm_critic,
-    'std_dev'           => $std_dev,
-    'corr_matrix'       => $corr_matrix,
-    'Cj'                => $Cj,
-    'weights'           => $weights,
-    'R'                 => $R,
-    'Y'                 => $Y,
-    'denominators'      => $denominators,
-    'r_petani'          => $r_petani,
-    'y_petani'          => $y_petani,
-    'y_plus'            => $y_plus,
-    'y_minus'           => $y_minus,
-    'D_plus'            => $D_plus,
-    'D_minus'           => $D_minus,
-    'scores'            => $scores
+    'kondisi_lahan'        => $kondisi_lahan,
+    'alternatif_list'      => $alternatif_list,
+    'alternatif_ids'       => $alternatif_ids,
+    'alternatif_names'     => $alternatif_names,
+    'kriteria_data'        => $kriteria_data,
+    'kriteria_names'       => $kriteria_names,
+    'n'                    => $n,
+    'm'                    => $m,
+    'matriks_perbandingan' => $matriks_perbandingan,
+    'matriks'              => $matriks,
+    'jumlah_kolom'         => $jumlah_kolom,
+    'matriks_norm'         => $matriks_norm,
+    'bobot'                => $bobot,
+    'lambda_maks'          => round($lambda_maks, 6),
+    'CI'                   => round($CI, 6),
+    'RI'                   => $RI,
+    'CR'                   => round($CR, 6),
+    'CR_persen'            => round($CR * 100, 4),
+    'konsisten'            => ($CR < 0.1),
+    'status_konsistensi'   => $status_konsistensi,
+    'R'                    => $R,
+    'Y'                    => $Y,
+    'denominators'         => $denominators,
+    'r_petani'             => $r_petani,
+    'y_petani'             => $y_petani,
+    'y_plus'               => $y_plus,
+    'y_minus'              => $y_minus,
+    'D_plus'               => $D_plus,
+    'D_minus'              => $D_minus,
+    'scores'               => $scores,
 ];
 
 // ========================================================================
-// SIMPAN HASIL KE DATABASE (TANPA USERNAME)
+// SIMPAN HASIL KE DATABASE
 // ========================================================================
 $success   = true;
 $error_msg = "";
@@ -352,12 +347,15 @@ for ($i = 0; $i < $m; $i++) {
     $id_alt = $alternatif_ids[$i];
     $nilai  = round($scores[$i], 6);
 
-    $insert = mysqli_query($koneksi, "
+    $stmt = mysqli_prepare($koneksi, "
         INSERT INTO peringkat (id_alternatif, nilai_peringkat) 
-        VALUES ('$id_alt', '$nilai')
+        VALUES (?, ?)
     ");
+    mysqli_stmt_bind_param($stmt, 'id', $id_alt, $nilai);
+    $exec = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
-    if (!$insert) {
+    if (!$exec) {
         $success   = false;
         $error_msg = mysqli_error($koneksi);
         break;

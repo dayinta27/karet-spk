@@ -22,19 +22,31 @@ $alternatif_ids   = $data_hasil['alternatif_ids'];
 $alternatif_names = $data_hasil['alternatif_names'];
 $kriteria_data    = $data_hasil['kriteria_data'];
 $kriteria_names   = $data_hasil['kriteria_names'];
-$matriks          = $data_hasil['matriks_keputusan'];
-$norm_critic      = $data_hasil['norm_critic'];
-$std_dev          = $data_hasil['std_dev'];
-$corr_matrix      = $data_hasil['corr_matrix'];
-$Cj               = $data_hasil['Cj'];
-$weights          = $data_hasil['weights'];
+$kriteria         = $data_hasil['kriteria'];
+$n                = $data_hasil['n'];
+$m                = $data_hasil['m'];
+$matriks          = $data_hasil['matriks'];
+$jumlah_kolom     = $data_hasil['jumlah_kolom'];
+$matriks_perbandingan = $data_hasil['matriks_perbandingan'];
+$matriks_norm     = $data_hasil['matriks_norm'];
+$bobot            = $data_hasil['bobot'];
+$lambda_maks      = $data_hasil['lambda_maks'];
+$CI               = $data_hasil['CI'];
+$RI               = $data_hasil['RI'];
+$CR               = $data_hasil['CR'];
+$CR_persen        = $data_hasil['CR_persen'];
+$konsisten        = $data_hasil['konsisten'];
+$status_konsistensi = $data_hasil['status_konsistensi'];
 $R                = $data_hasil['R'];
-$Y                = $data_hasil['Y'];
-$y_plus           = $data_hasil['y_plus'];
-$y_minus          = $data_hasil['y_minus'];
-$D_plus           = $data_hasil['D_plus'];
-$D_minus          = $data_hasil['D_minus'];
-$scores           = $data_hasil['scores'];
+$Y                = $data_hasil['Y'],
+$denominators     = $data_hasil['denominators'],
+$r_petani         = $data_hasil['r_petani'],
+$y_petani         = $data_hasil['y_petani'],
+$y_plus           = $data_hasil['y_plus'],
+$y_minus          = $data_hasil['y_minus'],
+$D_plus           = $data_hasil['D_plus'],
+$D_minus          = $data_hasil['D_minus'],
+$scores           = $data_hasil['scores']
 $kondisi_lahan    = $data_hasil['kondisi_lahan'];
 
 $m = count($alternatif_ids);
@@ -210,13 +222,13 @@ if ($row_cek['total'] == 0) {
             <h3><i class="fas fa-leaf"></i> Sistem Pendukung Keputusan</h3>
             <h4>Rekomendasi Varietas Tanaman Karet</h4>
             <p>Balai Pengkajian Teknologi Pertanian</p>
-            <p>Metode CRITIC (Pembobotan) + TOPSIS (Perangkingan)</p>
+            <p>Metode AHP (Pembobotan) + TOPSIS (Perangkingan)</p>
         </div>
 
         <div class="info-box">
             <p><strong>Tanggal Perhitungan :</strong> <?= date('d F Y, H:i'); ?> WIB</p>
             <p><strong>Pengguna           :</strong> <?= $_SESSION['nama']; ?></p>
-            <p><strong>Metode             :</strong> CRITIC-TOPSIS</p>
+            <p><strong>Metode             :</strong> AHP-TOPSIS</p>
         </div>
 
         <?php
@@ -236,7 +248,7 @@ if ($row_cek['total'] == 0) {
             <h5><i class="fas fa-trophy"></i> REKOMENDASI VARIETAS TERBAIK</h5>
             <h3><?= $data_rekom['nama']; ?></h3>
             <p>
-                Berdasarkan hasil perhitungan SPK dengan metode CRITIC-TOPSIS,
+                Berdasarkan hasil perhitungan SPK dengan metode AHP-TOPSIS,
                 <strong><?= $data_rekom['nama']; ?></strong> adalah varietas karet yang paling direkomendasikan
                 dengan nilai preferensi <strong><?= number_format($data_rekom['nilai'], 6); ?></strong>.
             </p>
@@ -307,65 +319,13 @@ if ($row_cek['total'] == 0) {
         </div>
 
         <!-- ====================================================== -->
-        <!-- 3. METODE CRITIC                                        -->
+        <!-- 3. METODE AHP                                          -->
         <!-- ====================================================== -->
         <div class="section">
-            <h2>3. Metode CRITIC</h2>
+            <h2>3. Metode AHP (Pembobotan Kriteria)</h2>
 
-            <h3>Normalisasi Matriks Keputusan (Min-Max)</h3>
-            <p class="info-text">Normalisasi nilai matriks keputusan menggunakan metode Min-Max</p>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="5%">No</th>
-                            <th width="25%">Nama Varietas</th>
-                            <?php foreach ($kriteria_data as $krit) { ?>
-                                <th><?= $krit['kode_kriteria']; ?></th>
-                            <?php } ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php for ($i = 0; $i < $m; $i++) { ?>
-                            <tr>
-                                <td><?= $i + 1; ?></td>
-                                <td style="text-align:left"><strong><?= $alternatif_names[$alternatif_ids[$i]]; ?></strong></td>
-                                <?php for ($j = 0; $j < $n; $j++) { ?>
-                                    <td><?= number_format($norm_critic[$i][$j], 4); ?></td>
-                                <?php } ?>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3>Standar Deviasi (σ)</h3>
-            <p class="info-text">Nilai standar deviasi setiap kriteria dari hasil normalisasi</p>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="6%">No</th>
-                            <th width="20%">Kode</th>
-                            <th width="50%">Nama Kriteria</th>
-                            <th>Standar Deviasi (σ)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php for ($j = 0; $j < $n; $j++) { ?>
-                            <tr>
-                                <td><?= $j + 1; ?></td>
-                                <td><?= $kriteria_data[$j]['kode_kriteria']; ?></td>
-                                <td style="text-align:left"><?= $kriteria_data[$j]['nama_kriteria']; ?></td>
-                                <td><?= number_format($std_dev[$j], 4); ?></td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3>Matriks Korelasi</h3>
-            <p class="info-text">Nilai korelasi antar kriteria</p>
+            <h3>Matriks Perbandingan Berpasangan</h3>
+            <p class="info-text">Nilai perbandingan berpasangan antar kriteria yang diisi oleh pakar</p>
             <div class="table-container">
                 <table>
                     <thead>
@@ -377,11 +337,11 @@ if ($row_cek['total'] == 0) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php for ($j1 = 0; $j1 < $n; $j1++) { ?>
+                        <?php for ($i = 0; $i < $n; $i++) { ?>
                             <tr>
-                                <td style="text-align:left"><strong><?= $kriteria_data[$j1]['kode_kriteria']; ?></strong></td>
-                                <?php for ($j2 = 0; $j2 < $n; $j2++) { ?>
-                                    <td><?= number_format($corr_matrix[$j1][$j2], 4); ?></td>
+                                <td style="text-align:left"><strong><?= $kriteria_data[$i]['kode_kriteria']; ?></strong></td>
+                                <?php for ($j = 0; $j < $n; $j++) { ?>
+                                    <td><?= number_format($matriks_perbandingan[$i][$j], 4); ?></td>
                                 <?php } ?>
                             </tr>
                         <?php } ?>
@@ -389,33 +349,33 @@ if ($row_cek['total'] == 0) {
                 </table>
             </div>
 
-            <h3>Nilai Informasi Kriteria (Cⱼ)</h3>
-            <p class="info-text">Semakin besar nilai Cj, semakin besar informasi yang dibawa oleh kriteria tersebut</p>
+            <h3>Matriks Normalisasi</h3>
+            <p class="info-text">Hasil normalisasi matriks perbandingan (dibagi jumlah kolom)</p>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th width="6%">No</th>
-                            <th width="20%">Kode</th>
-                            <th width="50%">Nama Kriteria</th>
-                            <th>Nilai Cⱼ</th>
+                            <th>Kriteria</th>
+                            <?php foreach ($kriteria_data as $krit) { ?>
+                                <th><?= $krit['kode_kriteria']; ?></th>
+                            <?php } ?>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php for ($j = 0; $j < $n; $j++) { ?>
+                        <?php for ($i = 0; $i < $n; $i++) { ?>
                             <tr>
-                                <td><?= $j + 1; ?></td>
-                                <td><?= $kriteria_data[$j]['kode_kriteria']; ?></td>
-                                <td style="text-align:left"><?= $kriteria_data[$j]['nama_kriteria']; ?></td>
-                                <td><?= number_format($Cj[$j], 4); ?></td>
+                                <td style="text-align:left"><strong><?= $kriteria_data[$i]['kode_kriteria']; ?></strong></td>
+                                <?php for ($j = 0; $j < $n; $j++) { ?>
+                                    <td><?= number_format($matriks_norm[$i][$j], 4); ?></td>
+                                <?php } ?>
                             </tr>
                         <?php } ?>
                     </tbody>
                 </table>
             </div>
 
-            <h3>Bobot Kriteria (Wⱼ)</h3>
-            <p class="info-text">Bobot final yang akan digunakan dalam perhitungan TOPSIS</p>
+            <h3>Bobot Prioritas (Wⱼ)</h3>
+            <p class="info-text">Bobot setiap kriteria hasil rata-rata baris matriks normalisasi</p>
             <div class="table-container">
                 <table>
                     <thead>
@@ -433,10 +393,49 @@ if ($row_cek['total'] == 0) {
                                 <td><?= $j + 1; ?></td>
                                 <td><?= $kriteria_data[$j]['kode_kriteria']; ?></td>
                                 <td style="text-align:left"><?= $kriteria_data[$j]['nama_kriteria']; ?></td>
-                                <td><?= number_format($weights[$j], 4); ?></td>
-                                <td><strong><?= number_format($weights[$j] * 100, 2); ?>%</strong></td>
+                                <td><?= number_format($bobot[$j], 4); ?></td>
+                                <td><strong><?= number_format($bobot[$j] * 100, 2); ?>%</strong></td>
                             </tr>
                         <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Uji Konsistensi</h3>
+            <p class="info-text">CR &lt; 0.1 = Konsisten, CR &lt; 0.2 = Cukup Konsisten, CR &ge; 0.2 = Tidak Konsisten</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="50%">Keterangan</th>
+                            <th>Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align:left">Lambda Maksimum (λmaks)</td>
+                            <td><?= number_format($lambda_maks, 6); ?></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:left">Consistency Index (CI)</td>
+                            <td><?= number_format($CI, 6); ?></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:left">Random Index (RI)</td>
+                            <td><?= $RI; ?></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:left">Consistency Ratio (CR)</td>
+                            <td><?= number_format($CR, 6); ?> (<?= $CR_persen; ?>%)</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:left"><strong>Status Konsistensi</strong></td>
+                            <td>
+                                <strong style="color: <?= ($CR < 0.1) ? 'green' : (($CR < 0.2) ? 'orange' : 'red'); ?>">
+                                    <?= $status_konsistensi; ?>
+                                </strong>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

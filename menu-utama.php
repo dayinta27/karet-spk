@@ -82,6 +82,9 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <a class='nav-link' href='data-subkriteria.php'>
                                 <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                 Data Subkriteria
+                            <a class='nav-link' href='data-matriks-perbandingan.php'>
+                                <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
+                                Data Matriks Perbandingan
                             </a>
                             ";
                         }

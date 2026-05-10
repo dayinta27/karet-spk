@@ -90,6 +90,10 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                     <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                     Data Subkriteria
                                 </a>
+                                </a><a class='nav-link' href='data-matriks-perbandingan.php'>
+                                    <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
+                                    Data Matriks Perbandingan
+                                </a>
                                 ";
                         }
                         ?>
