@@ -38,15 +38,15 @@ $CR_persen        = $data_hasil['CR_persen'];
 $konsisten        = $data_hasil['konsisten'];
 $status_konsistensi = $data_hasil['status_konsistensi'];
 $R                = $data_hasil['R'];
-$Y                = $data_hasil['Y'],
-$denominators     = $data_hasil['denominators'],
-$r_petani         = $data_hasil['r_petani'],
-$y_petani         = $data_hasil['y_petani'],
-$y_plus           = $data_hasil['y_plus'],
-$y_minus          = $data_hasil['y_minus'],
-$D_plus           = $data_hasil['D_plus'],
-$D_minus          = $data_hasil['D_minus'],
-$scores           = $data_hasil['scores']
+$Y                = $data_hasil['Y'];
+$denominators     = $data_hasil['denominators'];
+$r_petani         = $data_hasil['r_petani'];
+$y_petani         = $data_hasil['y_petani'];
+$y_plus           = $data_hasil['y_plus'];
+$y_minus          = $data_hasil['y_minus'];
+$D_plus           = $data_hasil['D_plus'];
+$D_minus          = $data_hasil['D_minus'];
+$scores           = $data_hasil['scores'];
 $kondisi_lahan    = $data_hasil['kondisi_lahan'];
 
 $m = count($alternatif_ids);
@@ -341,7 +341,7 @@ if ($row_cek['total'] == 0) {
                             <tr>
                                 <td style="text-align:left"><strong><?= $kriteria_data[$i]['kode_kriteria']; ?></strong></td>
                                 <?php for ($j = 0; $j < $n; $j++) { ?>
-                                    <td><?= number_format($matriks_perbandingan[$i][$j], 4); ?></td>
+                                    <td><?= number_format($matriks_perbandingan[$i][$j], 3); ?></td>
                                 <?php } ?>
                             </tr>
                         <?php } ?>
@@ -366,7 +366,7 @@ if ($row_cek['total'] == 0) {
                             <tr>
                                 <td style="text-align:left"><strong><?= $kriteria_data[$i]['kode_kriteria']; ?></strong></td>
                                 <?php for ($j = 0; $j < $n; $j++) { ?>
-                                    <td><?= number_format($matriks_norm[$i][$j], 4); ?></td>
+                                    <td><?= number_format($matriks_norm[$i][$j], 3); ?></td>
                                 <?php } ?>
                             </tr>
                         <?php } ?>
@@ -384,7 +384,6 @@ if ($row_cek['total'] == 0) {
                             <th width="20%">Kode</th>
                             <th width="40%">Nama Kriteria</th>
                             <th>Bobot (Wⱼ)</th>
-                            <th>Persentase</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -393,8 +392,7 @@ if ($row_cek['total'] == 0) {
                                 <td><?= $j + 1; ?></td>
                                 <td><?= $kriteria_data[$j]['kode_kriteria']; ?></td>
                                 <td style="text-align:left"><?= $kriteria_data[$j]['nama_kriteria']; ?></td>
-                                <td><?= number_format($bobot[$j], 4); ?></td>
-                                <td><strong><?= number_format($bobot[$j] * 100, 2); ?>%</strong></td>
+                                <td><strong><?= number_format($bobot[$j], 3); ?></strong></td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -414,11 +412,11 @@ if ($row_cek['total'] == 0) {
                     <tbody>
                         <tr>
                             <td style="text-align:left">Lambda Maksimum (λmaks)</td>
-                            <td><?= number_format($lambda_maks, 6); ?></td>
+                            <td><?= number_format($lambda_maks, 3); ?></td>
                         </tr>
                         <tr>
                             <td style="text-align:left">Consistency Index (CI)</td>
-                            <td><?= number_format($CI, 6); ?></td>
+                            <td><?= number_format($CI, 3); ?></td>
                         </tr>
                         <tr>
                             <td style="text-align:left">Random Index (RI)</td>
@@ -426,7 +424,7 @@ if ($row_cek['total'] == 0) {
                         </tr>
                         <tr>
                             <td style="text-align:left">Consistency Ratio (CR)</td>
-                            <td><?= number_format($CR, 6); ?> (<?= $CR_persen; ?>%)</td>
+                            <td><?= number_format($CR, 3); ?></td>
                         </tr>
                         <tr>
                             <td style="text-align:left"><strong>Status Konsistensi</strong></td>
@@ -475,7 +473,7 @@ if ($row_cek['total'] == 0) {
             </div>
 
             <h3>Matriks Terbobot</h3>
-            <p class="info-text">Hasil perkalian matriks ternormalisasi dengan bobot CRITIC</p>
+            <p class="info-text">Hasil perkalian matriks ternormalisasi dengan bobot AHP</p>
             <div class="table-container">
                 <table>
                     <thead>
