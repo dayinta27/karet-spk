@@ -26,15 +26,21 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
     <link href="css/styles_dash.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+    <style>
+        .sb-sidenav-light .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .sb-sidenav-light .nav-link.active .sb-nav-link-icon {
+            color: #0d6efd !important;
+        }
+    </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary hstack gap-3">
-        <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="menu-utama.php">Varietas Karet</a>
-        <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-        <!-- Navbar-->
         <ul class="navbar-nav ms-auto pe-2">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -44,16 +50,18 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                     <li>
                         <hr class="dropdown-divider" />
                     </li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#keluar" s>Keluar</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#keluar">Keluar</a></li>
                 </ul>
             </li>
         </ul>
     </nav>
+
+    <!-- Modal Keluar -->
     <div class="modal fade" id="keluar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Keluar dari Sistem</h1>
+                    <h1 class="modal-title fs-5">Keluar dari Sistem</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form>
@@ -68,6 +76,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </div>
         </div>
     </div>
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
@@ -90,7 +99,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                     <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                     Data Subkriteria
                                 </a>
-                                </a><a class='nav-link' href='data-matriks-perbandingan.php'>
+                                <a class='nav-link' href='data-matriks-perbandingan.php'>
                                     <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                     Data Matriks Perbandingan
                                 </a>
@@ -101,10 +110,6 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
                         </a>
-                        <!-- <a class="nav-link" href="data-perhitungan.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-calculator"></i></div>
-                            Data Perhitungan
-                        </a> -->
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
@@ -132,6 +137,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                 </div>
             </nav>
         </div>
+
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
@@ -141,73 +147,85 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                     </ol>
                     <div class="row">
                         <div class="col-sm-12">
+
+                            <!-- ===================== ALERT VALIDASI ===================== -->
                             <?php
                             if ($validasi == "sukses-tambah") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Kriteria berhasil ditambahkan!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Kriteria berhasil ditambahkan!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "sukses-perbarui") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Kriteria berhasil diperbarui!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Kriteria berhasil diperbarui!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "sukses-hapus") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Kriteria berhasil dihapus!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Kriteria berhasil dihapus!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "error") {
                                 echo "
                                     <div class='alert alert-danger alert-dismissible fade show mb-3' role='alert'>
-                                        Proses gagal!
+                                        <i class='fas fa-exclamation-circle'></i> <strong>Gagal!</strong> Proses gagal!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "warning") {
                                 echo "
                                     <div class='alert alert-warning alert-dismissible fade show mb-3' role='alert'>
-                                        Kode kriteria telah digunakan, Silahkan gunakan kode kriteria yang berbeda!
+                                        <i class='fas fa-exclamation-triangle'></i> <strong>Peringatan!</strong> Kode kriteria telah digunakan, silahkan gunakan kode kriteria yang berbeda!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             }
                             ?>
-                            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah_data"><i class="fas fa-plus"></i> Tambah data</a>
+                            <!-- =========================================================== -->
+
+                            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah_data">
+                                <i class="fas fa-plus"></i> Tambah data
+                            </a>
+
+                            <!-- Modal Tambah Data -->
                             <div class="modal fade" id="tambah_data" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Tambah Data Kriteria</h1>
+                                            <h1 class="modal-title fs-5">Tambah Data Kriteria</h1>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <form action="proses.php" method="post">
                                             <div class="modal-body">
                                                 <div class="form-floating mb-3">
-                                                    <input name="kode" class="form-control" id="inputEmail" type="text" placeholder="Kode Kriteria" pattern="[A-Za-z0-9]+" oninvalid="this.setCustomValidity('Tidak Boleh Simbol')" oninput="setCustomValidity('')" required autocomplete="off" />
-                                                    <label for="inputEmail">Kode Kriteria</label>
+                                                    <input name="kode" class="form-control" type="text" placeholder="Kode Kriteria"
+                                                        pattern="[A-Za-z0-9]+"
+                                                        oninvalid="this.setCustomValidity('Tidak Boleh Simbol')"
+                                                        oninput="setCustomValidity('')"
+                                                        required autocomplete="off" />
+                                                    <label>Kode Kriteria</label>
                                                 </div>
                                                 <div class="form-floating mb-3">
-                                                    <input name="nama" class="form-control" id="inputEmail" type="text" placeholder="Nama Kriteria" pattern="[A-Za-z ]+" oninvalid="this.setCustomValidity('Input hanya huruf')" oninput="setCustomValidity('')" required autocomplete="off" />
-                                                    <label for="inputEmail">Nama Kriteria</label>
+                                                    <input name="nama" class="form-control" type="text" placeholder="Nama Kriteria"
+                                                        pattern="[A-Za-z ]+"
+                                                        oninvalid="this.setCustomValidity('Input hanya huruf')"
+                                                        oninput="setCustomValidity('')"
+                                                        required autocomplete="off" />
+                                                    <label>Nama Kriteria</label>
                                                 </div>
-                                                <!-- <div class="form-floating mb-3">
-                                                    <input name="bobot" class="form-control" id="inputEmail" type="text" placeholder="Bobot Kriteria" pattern="[0-9]{1,2}" oninvalid="this.setCustomValidity('Input hanya angka 2 digit')" oninput="setCustomValidity('')" required autocomplete="off" />
-                                                    <label for="inputEmail">Bobot Kriteria</label>
-                                                </div> -->
                                                 <div class="form-floating mb-3">
-                                                    <select name="jenis" class="form-select" id="floatingSelect" aria-label="Floating label select example" required>
-                                                        <option></option>
+                                                    <select name="jenis" class="form-select" required>
+                                                        <option value=""></option>
                                                         <option value="Benefit">Benefit</option>
                                                         <option value="Cost">Cost</option>
                                                     </select>
-                                                    <label for="floatingSelect">Jenis Kriteria</label>
+                                                    <label>Jenis Kriteria</label>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -218,6 +236,8 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Tabel Data -->
                             <div class="table-responsive mt-3">
                                 <table id="data-kriteria" class="cell-bordered display" width="100%">
                                     <thead class="bg-primary">
@@ -225,26 +245,25 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                             <th class="text-center text-white">No.</th>
                                             <th class="text-center text-white">Kode Kriteria</th>
                                             <th class="text-center text-white">Nama Kriteria</th>
-                                            <!-- <th class="text-center text-white">Bobot</th> -->
                                             <th class="text-center text-white">Jenis</th>
                                             <th class="text-center text-white">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $query = mysqli_query($koneksi, "SELECT * FROM kriteria");
+                                        $q_tabel = mysqli_query($koneksi, "SELECT * FROM kriteria");
                                         $no = 1;
-                                        while ($baris = mysqli_fetch_array($query)) {
+                                        while ($baris_tabel = mysqli_fetch_array($q_tabel)) {
                                             echo "
                                                 <tr>
                                                     <td class='text-center'>" . $no . "</td>
-                                                    <td class='text-center'>" . $baris['kode_kriteria'] . "</td>
-                                                    <td class='text-center'>" . $baris['nama_kriteria'] . "</td>
-                                                    <td class='text-center'>" . $baris['jenis_kriteria'] . "</td>
+                                                    <td class='text-center'>" . $baris_tabel['kode_kriteria'] . "</td>
+                                                    <td class='text-center'>" . $baris_tabel['nama_kriteria'] . "</td>
+                                                    <td class='text-center'>" . $baris_tabel['jenis_kriteria'] . "</td>
                                                     <td class='text-center'>
                                                         <div class='d-flex justify-content-center'>
-                                                            <a class='btn btn-warning me-2' data-bs-toggle='modal' data-bs-target='#edit_data" . $baris['id_kriteria'] . "'><i class='fas fa-pencil'></i></a>
-                                                            <a class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#hapus_data" . $baris['id_kriteria'] . "'><i class='fas fa-trash'></i></a>
+                                                            <a class='btn btn-warning me-2' data-bs-toggle='modal' data-bs-target='#edit_data" . $baris_tabel['id_kriteria'] . "'><i class='fas fa-pencil'></i></a>
+                                                            <a class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#hapus_data" . $baris_tabel['id_kriteria'] . "'><i class='fas fa-trash'></i></a>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -255,36 +274,51 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                     </tbody>
                                 </table>
                             </div>
+
+                            <!-- ===================== MODAL EDIT & HAPUS ===================== -->
                             <?php
-                            $query = mysqli_query($koneksi, "SELECT * FROM kriteria");
-                            while ($baris = mysqli_fetch_array($query)) {
-                                $id = $baris['id_kriteria'];
+                            $q_modal = mysqli_query($koneksi, "SELECT * FROM kriteria");
+                            while ($baris_modal = mysqli_fetch_array($q_modal)) {
+                                $id          = $baris_modal['id_kriteria'];
+                                $kode_krit   = $baris_modal['kode_kriteria'];
+                                $nama_krit   = $baris_modal['nama_kriteria'];
+                                $jenis_krit  = $baris_modal['jenis_kriteria'];
                             ?>
+                                <!-- Modal Edit -->
                                 <div class="modal fade" id="edit_data<?= $id; ?>" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Data Kriteria</h1>
+                                                <h1 class="modal-title fs-5">Edit Data Kriteria</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <form action="proses.php" method="post">
                                                 <div class="modal-body">
-                                                    <?php
-                                                    $baris = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM kriteria WHERE id_kriteria = '$id'"));
-                                                    ?>
+                                                    <input type="hidden" name="id" value="<?= $id; ?>">
                                                     <div class="form-floating mb-3">
-                                                        <input type="hidden" name="id" value="<?= $id; ?>">
-                                                        <input name="kode" class="form-control" id="inputEmail" type="text" placeholder="Kode Kriteria" value="<?= $baris['kode_kriteria']; ?>" readonly />
-                                                        <label for="inputEmail">Kode Kriteria</label>
+                                                        <input name="kode" class="form-control" type="text"
+                                                            placeholder="Kode Kriteria"
+                                                            value="<?= $kode_krit; ?>"
+                                                            readonly />
+                                                        <label>Kode Kriteria</label>
                                                     </div>
                                                     <div class="form-floating mb-3">
-                                                        <input name="nama" class="form-control" id="inputEmail" type="text" placeholder="Nama Kriteria" pattern="[A-Za-z ]+" oninvalid="this.setCustomValidity('Input hanya huruf')" oninput="setCustomValidity('')" value="<?= $baris['nama_kriteria']; ?>" required autocomplete="off" />
-                                                        <label for="inputEmail">Nama Kriteria</label>
+                                                        <input name="nama" class="form-control" type="text"
+                                                            placeholder="Nama Kriteria"
+                                                            pattern="[A-Za-z ]+"
+                                                            oninvalid="this.setCustomValidity('Input hanya huruf')"
+                                                            oninput="setCustomValidity('')"
+                                                            value="<?= $nama_krit; ?>"
+                                                            required autocomplete="off" />
+                                                        <label>Nama Kriteria</label>
                                                     </div>
-                                                    <!-- <div class="form-floating mb-3">
-                                                        <input name="bobot" class="form-control" id="inputEmail" type="text" placeholder="Bobot Kriteria" pattern="[0-9]{1,2}" oninvalid="this.setCustomValidity('Input hanya angka 2 digit')" oninput="setCustomValidity('')" value="<?= $baris['bobot_kriteria'] * 100; ?>" required autocomplete="off" />
-                                                        <label for="inputEmail">Bobot Kriteria</label>
-                                                    </div> -->
+                                                    <div class="form-floating mb-3">
+                                                        <select name="jenis" class="form-select" required>
+                                                            <option value="Benefit" <?= $jenis_krit == "Benefit" ? "selected" : ""; ?>>Benefit</option>
+                                                            <option value="Cost"    <?= $jenis_krit == "Cost"    ? "selected" : ""; ?>>Cost</option>
+                                                        </select>
+                                                        <label>Jenis Kriteria</label>
+                                                    </div>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <a class="btn btn-secondary" data-bs-dismiss="modal">Tutup</a>
@@ -294,34 +328,37 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Modal Hapus -->
                                 <div class="modal fade" id="hapus_data<?= $id; ?>" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Data Kriteria</h1>
+                                                <h1 class="modal-title fs-5">Hapus Data Kriteria</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form>
-                                                <div class="modal-body">
-                                                    <p>Apakah anda yakin ingin menghapus kriteria yang dipilih?</p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <a class="btn btn-secondary" data-bs-dismiss="modal">Tidak</a>
-                                                    <a href="hapus-data-kriteria.php?id=<?= $id; ?>" class="btn btn-danger">Ya</a>
-                                                </div>
-                                            </form>
+                                            <div class="modal-body">
+                                                <p>Apakah anda yakin ingin menghapus kriteria <strong><?= $nama_krit; ?></strong>?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a class="btn btn-secondary" data-bs-dismiss="modal">Tidak</a>
+                                                <a href="hapus-data-kriteria.php?id=<?= $id; ?>" class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i> Ya
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            <?php
-                            }
-                            ?>
+                            <?php } ?>
+                            <!-- ============================================================= -->
+
                         </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts_dash.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.js"></script>
@@ -329,7 +366,16 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
     <script type="text/javascript">
         $(document).ready(function() {
             $('#data-kriteria').DataTable();
-        })
+
+            // Tandai menu sidebar aktif sesuai halaman yang sedang dibuka
+            var currentPage = window.location.pathname.split('/').pop().split('?')[0];
+            $('.sb-sidenav .nav-link').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.split('?')[0] === currentPage) {
+                    $(this).addClass('active');
+                }
+            });
+        });
     </script>
 </body>
 

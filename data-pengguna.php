@@ -99,7 +99,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                         ?>
                         <a class="nav-link" href="jenis-varietas.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
-                            Data Alternatif
+                            Jenis Varietas
                         </a>
                         <!-- <a class="nav-link" href="data-perhitungan.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-calculator"></i></div>

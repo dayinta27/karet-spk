@@ -127,7 +127,7 @@ if (isset($_POST['edit-subkriteria'])) {
 }
 
 // ========================================================================
-// TAMBAH ALTERNATIF
+// TAMBAH JENIS VARIETAS
 // ========================================================================
 if (isset($_POST['tambah-alternatif'])) {
     $kode        = htmlspecialchars($_POST['kode']);
@@ -166,7 +166,7 @@ if (isset($_POST['tambah-alternatif'])) {
 }
 
 // ========================================================================
-// EDIT ALTERNATIF
+// EDIT JENIS VARIEATS
 // ========================================================================
 if (isset($_POST['edit-alternatif'])) {
     $id          = htmlspecialchars($_POST['id']);
@@ -174,7 +174,7 @@ if (isset($_POST['edit-alternatif'])) {
     $nama        = htmlspecialchars($_POST['nama']);
     $kriteria    = $_POST['kriteria'];
     $subkriteria = $_POST['subkriteria'];
-
+ 
     $update = mysqli_query($koneksi, "UPDATE alternatif SET kode_alternatif = '$kode', nama_alternatif = '$nama' WHERE id_alternatif = '$id'");
     if ($update) {
         $delete = mysqli_query($koneksi, "DELETE FROM matriks WHERE id_alternatif = '$id'");
@@ -187,19 +187,26 @@ if (isset($_POST['edit-alternatif'])) {
                     break;
                 }
             }
-
+ 
             if ($success) {
                 header("Location: jenis-varietas.php?validasi=sukses-perbarui");
+                exit; // ← FIX: stop di sini kalau sukses
             } else {
                 header("Location: jenis-varietas.php?validasi=error");
+                exit;
             }
         } else {
             header("Location: jenis-varietas.php?validasi=error");
+            exit;
         }
+        // ← FIX: baris header error yang salah posisi sudah DIHAPUS dari sini
+    } else {
         header("Location: jenis-varietas.php?validasi=error");
+        exit;
     }
     exit;
 }
+ 
 
 // ========================================================================
 // SIMPAN MATRIKS PERBANDINGAN AHP

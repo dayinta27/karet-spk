@@ -86,7 +86,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
                             Dashboard
                         </a>
-                        <div class="sb-sidenav-menu-heading">Proses</div>
+                        <!-- <div class="sb-sidenav-menu-heading">Proses</div> -->
                         <?php
                         if ($_SESSION['level'] == "Admin") {
                             echo "
@@ -105,10 +105,10 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             ";
                         }
                         ?>
-                        <a class="nav-link" href="jenis-varietas.php">
+                        <!-- <a class="nav-link" href="jenis-varietas.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
-                        </a>
+                        </a> -->
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
@@ -256,7 +256,9 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                             ORDER BY peringkat.nilai_peringkat DESC
                                                         ");
 
-                                                        if (mysqli_num_rows($query_tabel) > 0) {
+                                                        $total_data = mysqli_num_rows($query_tabel);
+
+                                                        if ($total_data > 0) {
                                                             $no = 1;
                                                             while ($baris = mysqli_fetch_array($query_tabel)) {
                                                                 if ($no == 1) {
@@ -268,8 +270,12 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                                 } else {
                                                                     $badge_class = "bg-light text-dark";
                                                                 }
+
+                                                                // Sembunyikan baris ke-4 dan seterusnya secara default
+                                                                $hidden_attr = ($no > 3) ? "class='row-hidden'" : "";
+                                                                $hidden_style = ($no > 3) ? "style='display:none;'" : "";
                                                         ?>
-                                                            <tr>
+                                                            <tr <?= $hidden_attr; ?> <?= $hidden_style; ?>>
                                                                 <td class="text-center"><?= $no; ?></td>
                                                                 <td class="text-center">
                                                                     <span class="badge <?= $badge_class; ?> px-3 py-2">
@@ -295,10 +301,18 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                 </table>
                                             </div>
 
-                                            <!-- =============================================================  -->
-                                            <!-- PERBAIKAN: Hapus target="_blank" agar session tetap terbawa  -->
-                                            <!-- Ganti nama file dari print.php → cetak-hasil.php             -->
-                                            <!-- =============================================================  -->
+                                            <!-- Tombol Lihat Semua Peringkat (hanya tampil jika data > 3) -->
+                                            <?php if ($total_data > 3): ?>
+                                            <div class="text-center mt-3 mb-2">
+                                                <button class="btn btn-outline-primary btn-sm px-4" id="btnToggle" onclick="toggleRankings(<?= $total_data; ?>)">
+                                                    <i class="fas fa-chevron-down me-1" id="iconToggle"></i>
+                                                    Lihat Semua Peringkat
+                                                    <span class="badge bg-primary ms-1"><?= $total_data; ?> varietas</span>
+                                                </button>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <!-- Tombol Aksi -->
                                             <div class="text-center mt-4">
                                                 <a href="cetak-hasil.php?validasi=sukses" class="btn btn-primary btn-lg">
                                                     <i class="fas fa-print"></i> Cetak Hasil
@@ -348,6 +362,32 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                 "ordering": false
             });
         });
+    </script>
+
+    <script>
+        var allRowsVisible = false;
+
+        function toggleRankings(totalData) {
+            var hiddenRows = document.querySelectorAll('.row-hidden');
+            var btn        = document.getElementById('btnToggle');
+            var icon       = document.getElementById('iconToggle');
+
+            if (!allRowsVisible) {
+                // Tampilkan semua baris tersembunyi
+                hiddenRows.forEach(function(row) {
+                    row.style.display = '';
+                });
+                btn.innerHTML      = '<i class="fas fa-chevron-up me-1"></i> Sembunyikan Peringkat Lainnya <span class="badge bg-primary ms-1">' + totalData + ' varietas</span>';
+                allRowsVisible     = true;
+            } else {
+                // Sembunyikan kembali baris ke-4 dst
+                hiddenRows.forEach(function(row) {
+                    row.style.display = 'none';
+                });
+                btn.innerHTML      = '<i class="fas fa-chevron-down me-1"></i> Lihat Semua Peringkat <span class="badge bg-primary ms-1">' + totalData + ' varietas</span>';
+                allRowsVisible     = false;
+            }
+        }
     </script>
 </body>
 

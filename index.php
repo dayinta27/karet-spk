@@ -47,11 +47,11 @@ if (isset($_SESSION['nama']) && isset($_SESSION['level'])) {
         <div class="collapse navbar-collapse justify-content-end" id="navbarResponsive">
             <ul class="navbar-nav align-items-center">
 
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link px-3 fw-semibold text-white" href="#penggunaan">
                         Jenis Varietas
                     </a>
-                </li>
+                </li> -->
 
                 <li class="nav-item">
                     <a class="btn btn-danger px-4 py-2 ms-2" href="masuk.php">

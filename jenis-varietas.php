@@ -21,6 +21,15 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
     <link href="css/styles_dash.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+    <style>
+        .sb-sidenav-light .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .sb-sidenav-light .nav-link.active .sb-nav-link-icon {
+            color: #0d6efd !important;
+        }
+    </style>
 </head>
 
 <body class="sb-nav-fixed">
@@ -89,7 +98,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                 <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                 Data Subkriteria
                             </a>
-                            </a><a class='nav-link' href='data-matriks-perbandingan.php'>
+                            <a class='nav-link' href='data-matriks-perbandingan.php'>
                                 <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                 Data Matriks Perbandingan
                             </a>
@@ -221,22 +230,22 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                     <label>Nama Alternatif</label>
                                                 </div>
                                                 <?php
-                                                $query = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
-                                                while ($baris = mysqli_fetch_array($query)) {
-                                                    $id_kriteria = $baris['id_kriteria'];
+                                                $q_krit_tambah = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
+                                                while ($baris_krit = mysqli_fetch_array($q_krit_tambah)) {
+                                                    $id_kriteria = $baris_krit['id_kriteria'];
                                                 ?>
                                                     <div class="form-floating mb-3">
                                                         <input type="hidden" name="kriteria[]" value="<?= $id_kriteria; ?>">
                                                         <select name="subkriteria[]" class="form-select" required>
                                                             <option value="">-- Pilih --</option>
                                                             <?php
-                                                            $select = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id_kriteria' ORDER BY id_subkriteria");
-                                                            while ($option = mysqli_fetch_array($select)) {
+                                                            $q_sub_tambah = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id_kriteria' ORDER BY id_subkriteria");
+                                                            while ($option = mysqli_fetch_array($q_sub_tambah)) {
                                                                 echo "<option value='" . $option['id_subkriteria'] . "'>" . $option['nama_subkriteria'] . "</option>";
                                                             }
                                                             ?>
                                                         </select>
-                                                        <label><?= $baris['nama_kriteria']; ?></label>
+                                                        <label><?= $baris_krit['nama_kriteria']; ?></label>
                                                     </div>
                                                 <?php } ?>
                                             </div>
@@ -268,30 +277,30 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $query = mysqli_query($koneksi, "SELECT * FROM alternatif ORDER BY id_alternatif");
+                                        $q_tabel = mysqli_query($koneksi, "SELECT * FROM alternatif ORDER BY id_alternatif");
                                         $no = 1;
-                                        while ($baris = mysqli_fetch_array($query)) {
+                                        while ($baris_tabel = mysqli_fetch_array($q_tabel)) {
                                         ?>
                                             <tr>
                                                 <td class="text-center"><?= $no; ?></td>
-                                                <td class="text-center"><?= $baris['kode_alternatif']; ?></td>
-                                                <td class="text-center"><?= $baris['nama_alternatif']; ?></td>
+                                                <td class="text-center"><?= $baris_tabel['kode_alternatif']; ?></td>
+                                                <td class="text-center"><?= $baris_tabel['nama_alternatif']; ?></td>
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center gap-1">
                                                         <a class="btn btn-info btn-sm"
                                                            data-bs-toggle="modal"
-                                                           data-bs-target="#view_data<?= $baris['id_alternatif']; ?>">
+                                                           data-bs-target="#view_data<?= $baris_tabel['id_alternatif']; ?>">
                                                             <i class="fas fa-eye text-white"></i>
                                                         </a>
                                                         <?php if ($_SESSION['level'] == "Admin") { ?>
                                                             <a class="btn btn-warning btn-sm"
                                                                data-bs-toggle="modal"
-                                                               data-bs-target="#edit_data<?= $baris['id_alternatif']; ?>">
+                                                               data-bs-target="#edit_data<?= $baris_tabel['id_alternatif']; ?>">
                                                                 <i class="fas fa-pencil"></i>
                                                             </a>
                                                             <a class="btn btn-danger btn-sm"
                                                                data-bs-toggle="modal"
-                                                               data-bs-target="#hapus_data<?= $baris['id_alternatif']; ?>">
+                                                               data-bs-target="#hapus_data<?= $baris_tabel['id_alternatif']; ?>">
                                                                 <i class="fas fa-trash"></i>
                                                             </a>
                                                         <?php } ?>
@@ -306,11 +315,13 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                 </table>
                             </div>
 
-                            <!-- Modal View, Edit, Hapus -->
+                            <!-- ===================== MODAL VIEW / EDIT / HAPUS ===================== -->
                             <?php
-                            $query = mysqli_query($koneksi, "SELECT * FROM alternatif ORDER BY id_alternatif");
-                            while ($baris = mysqli_fetch_array($query)) {
-                                $id = $baris['id_alternatif'];
+                            $q_modal = mysqli_query($koneksi, "SELECT * FROM alternatif ORDER BY id_alternatif");
+                            while ($baris_modal = mysqli_fetch_array($q_modal)) {
+                                $id       = $baris_modal['id_alternatif'];
+                                $kode_alt = $baris_modal['kode_alternatif'];
+                                $nama_alt = $baris_modal['nama_alternatif'];
                             ?>
 
                                 <!-- Modal View -->
@@ -322,29 +333,30 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <?php
-                                                $data_alt = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM alternatif WHERE id_alternatif = '$id'"));
-                                                ?>
                                                 <div class="form-floating mb-3">
-                                                    <input class="form-control" type="text" value="<?= $data_alt['kode_alternatif']; ?>" readonly />
+                                                    <input class="form-control" type="text" value="<?= $kode_alt; ?>" readonly />
                                                     <label>Kode Alternatif</label>
                                                 </div>
                                                 <div class="form-floating mb-3">
-                                                    <input class="form-control" type="text" value="<?= $data_alt['nama_alternatif']; ?>" readonly />
+                                                    <input class="form-control" type="text" value="<?= $nama_alt; ?>" readonly />
                                                     <label>Nama Alternatif</label>
                                                 </div>
                                                 <?php
-                                                $query_krit = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
-                                                $matriks    = mysqli_query($koneksi, "SELECT * FROM matriks WHERE id_alternatif = '$id' ORDER BY id_kriteria");
-                                                while ($krit = mysqli_fetch_array($query_krit)) {
-                                                    $mat      = mysqli_fetch_array($matriks);
-                                                    $id_sub   = isset($mat['id_subkriteria']) ? $mat['id_subkriteria'] : "";
-                                                    $data_sub = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_subkriteria = '$id_sub'"));
-                                                    $nama_sub = isset($data_sub['nama_subkriteria']) ? $data_sub['nama_subkriteria'] : "-";
+                                                $q_krit_view = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
+                                                while ($krit_view = mysqli_fetch_array($q_krit_view)) {
+                                                    $id_krit_view  = $krit_view['id_kriteria'];
+                                                    $mat_view      = mysqli_fetch_array(mysqli_query($koneksi,
+                                                        "SELECT * FROM matriks
+                                                         WHERE id_alternatif = '$id' AND id_kriteria = '$id_krit_view'
+                                                         LIMIT 1"));
+                                                    $id_sub_view   = isset($mat_view['id_subkriteria']) ? $mat_view['id_subkriteria'] : "";
+                                                    $data_sub_view = mysqli_fetch_array(mysqli_query($koneksi,
+                                                        "SELECT * FROM subkriteria WHERE id_subkriteria = '$id_sub_view'"));
+                                                    $nama_sub_view = isset($data_sub_view['nama_subkriteria']) ? $data_sub_view['nama_subkriteria'] : "-";
                                                 ?>
                                                     <div class="form-floating mb-3">
-                                                        <input class="form-control" type="text" value="<?= $nama_sub; ?>" readonly />
-                                                        <label><?= $krit['nama_kriteria']; ?></label>
+                                                        <input class="form-control" type="text" value="<?= $nama_sub_view; ?>" readonly />
+                                                        <label><?= $krit_view['nama_kriteria']; ?></label>
                                                     </div>
                                                 <?php } ?>
                                             </div>
@@ -367,9 +379,6 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                             </div>
                                             <form action="proses.php" method="post">
                                                 <div class="modal-body">
-                                                    <?php
-                                                    $data_alt = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM alternatif WHERE id_alternatif = '$id'"));
-                                                    ?>
                                                     <input type="hidden" name="id" value="<?= $id; ?>">
                                                     <div class="form-floating mb-3">
                                                         <input
@@ -377,7 +386,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                             class="form-control"
                                                             type="text"
                                                             placeholder="Kode Alternatif"
-                                                            value="<?= $data_alt['kode_alternatif']; ?>"
+                                                            value="<?= $kode_alt; ?>"
                                                             readonly
                                                         />
                                                         <label>Kode Alternatif</label>
@@ -388,33 +397,36 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                             class="form-control"
                                                             type="text"
                                                             placeholder="Nama Alternatif"
-                                                            value="<?= $data_alt['nama_alternatif']; ?>"
+                                                            value="<?= $nama_alt; ?>"
                                                             required
                                                             autocomplete="off"
                                                         />
                                                         <label>Nama Alternatif</label>
                                                     </div>
                                                     <?php
-                                                    $query_krit = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
-                                                    $matriks    = mysqli_query($koneksi, "SELECT * FROM matriks WHERE id_alternatif = '$id' ORDER BY id_kriteria");
-                                                    while ($krit = mysqli_fetch_array($query_krit)) {
-                                                        $mat        = mysqli_fetch_array($matriks);
-                                                        $id_krit    = $krit['id_kriteria'];
-                                                        $id_sub_sel = isset($mat['id_subkriteria']) ? $mat['id_subkriteria'] : "";
+                                                    $q_krit_edit = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
+                                                    while ($krit_edit = mysqli_fetch_array($q_krit_edit)) {
+                                                        $id_krit_edit = $krit_edit['id_kriteria'];
+                                                        $mat_edit     = mysqli_fetch_array(mysqli_query($koneksi,
+                                                            "SELECT * FROM matriks
+                                                             WHERE id_alternatif = '$id' AND id_kriteria = '$id_krit_edit'
+                                                             LIMIT 1"));
+                                                        $id_sub_sel   = isset($mat_edit['id_subkriteria']) ? $mat_edit['id_subkriteria'] : "";
                                                     ?>
                                                         <div class="form-floating mb-3">
-                                                            <input type="hidden" name="kriteria[]" value="<?= $id_krit; ?>">
+                                                            <input type="hidden" name="kriteria[]" value="<?= $id_krit_edit; ?>">
                                                             <select name="subkriteria[]" class="form-select" required>
                                                                 <option value="">-- Pilih --</option>
                                                                 <?php
-                                                                $select = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id_krit' ORDER BY id_subkriteria");
-                                                                while ($option = mysqli_fetch_array($select)) {
+                                                                $q_sub_edit = mysqli_query($koneksi,
+                                                                    "SELECT * FROM subkriteria WHERE id_kriteria = '$id_krit_edit' ORDER BY id_subkriteria");
+                                                                while ($option = mysqli_fetch_array($q_sub_edit)) {
                                                                     $selected_attr = ($option['id_subkriteria'] == $id_sub_sel) ? "selected" : "";
                                                                     echo "<option value='" . $option['id_subkriteria'] . "' $selected_attr>" . $option['nama_subkriteria'] . "</option>";
                                                                 }
                                                                 ?>
                                                             </select>
-                                                            <label><?= $krit['nama_kriteria']; ?></label>
+                                                            <label><?= $krit_edit['nama_kriteria']; ?></label>
                                                         </div>
                                                     <?php } ?>
                                                 </div>
@@ -436,7 +448,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <p>Apakah anda yakin ingin menghapus varietas <strong><?= $baris['nama_alternatif']; ?></strong>?</p>
+                                                <p>Apakah anda yakin ingin menghapus varietas <strong><?= $nama_alt; ?></strong>?</p>
                                             </div>
                                             <div class="modal-footer">
                                                 <a class="btn btn-secondary" data-bs-dismiss="modal">Tidak</a>
@@ -451,6 +463,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                 <?php } ?>
 
                             <?php } ?>
+                            <!-- ================================================================== -->
 
                         </div>
                     </div>
@@ -470,6 +483,15 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                     "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
                 },
                 "pageLength": 10
+            });
+
+            // Tandai menu sidebar aktif sesuai halaman yang sedang dibuka
+            var currentPage = window.location.pathname.split('/').pop().split('?')[0];
+            $('.sb-sidenav .nav-link').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.split('?')[0] === currentPage) {
+                    $(this).addClass('active');
+                }
             });
         });
     </script>

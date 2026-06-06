@@ -71,7 +71,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
                             Dashboard
                         </a>
-                        <div class="sb-sidenav-menu-heading">Proses</div>
+                        <!-- <div class="sb-sidenav-menu-heading">Proses</div> -->
                         <?php
                         if ($_SESSION['level'] == "Admin") {
                             echo "
@@ -86,13 +86,17 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                 <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
                                 Data Matriks Perbandingan
                             </a>
+                            <a class='nav-link' href='jenis-varietas.php'>
+                                <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
+                                Jenis Varietas
+                            </a>
                             ";
                         }
                         ?>
-                        <a class="nav-link" href="jenis-varietas.php">
+                        <!-- <a class="nav-link" href="jenis-varietas.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
-                        </a>
+                        </a> -->
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
@@ -178,6 +182,26 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class='col-sm-4'>
                                 <div class='card mb-4 border-bs-primary'>
                                     <div class='card-body'>
+                                        <h5 class='card-title'>Data Matriks Perbandingan</h5>
+                                    </div>
+                                    <div class='card-footer'>
+                                        <a class='text-dark' href='data-matriks-perbandingan.php'>Lihat Detail<i class='fas fa-chevron-right ms-2'></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='col-sm-4'>
+                                <div class='card mb-4 border-bs-primary'>
+                                    <div class='card-body'>
+                                        <h5 class='card-title'>Jenis Varietas</h5>
+                                    </div>
+                                    <div class='card-footer'>
+                                        <a class='text-dark' href='jenis-varietas.php'>Lihat Detail<i class='fas fa-chevron-right ms-2'></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='col-sm-4'>
+                                <div class='card mb-4 border-bs-primary'>
+                                    <div class='card-body'>
                                         <h5 class='card-title'>Data Pengguna</h5>
                                     </div>
                                     <div class='card-footer'>
@@ -241,7 +265,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                 <button type="submit" name="masuk"
                                     class="btn btn-warning w-100 fw-bold py-3"
                                     style="border-radius:30px; font-size:18px;">
-                                    Proses Perhitungan Kesesuaian
+                                    Lihat Rekomendasi
                                 </button>
                                 </form>
                             </div>

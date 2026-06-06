@@ -2,6 +2,9 @@
 session_start();
 include 'koneksi.php';
 
+// ========================================================================
+// CEK SESSION & AKSES
+// ========================================================================
 if (!isset($_SESSION['nama']) && !isset($_SESSION['level'])) {
     header("Location: index.php");
     exit;
@@ -18,7 +21,9 @@ if (!isset($_POST['masuk'])) {
 $username        = $_SESSION['username'];
 $subkriteria_ids = isset($_POST['subkriteria']) ? $_POST['subkriteria'] : [];
 
-// Validasi: Cek apakah semua kriteria sudah diisi
+// ========================================================================
+// VALIDASI 1: Cek apakah semua kriteria sudah diisi
+// ========================================================================
 $jumlah_kriteria = mysqli_num_rows(mysqli_query($koneksi, "SELECT * FROM kriteria"));
 
 if (empty($subkriteria_ids) || count($subkriteria_ids) != $jumlah_kriteria) {
@@ -26,7 +31,9 @@ if (empty($subkriteria_ids) || count($subkriteria_ids) != $jumlah_kriteria) {
     exit;
 }
 
-// Validasi: Cek apakah semua alternatif sudah memiliki data lengkap
+// ========================================================================
+// VALIDASI 2: Cek apakah semua alternatif sudah memiliki data lengkap
+// ========================================================================
 $query_va              = mysqli_query($koneksi, "SELECT * FROM alternatif");
 $cek                   = 0;
 $alternatif_bermasalah = [];
@@ -34,8 +41,13 @@ $alternatif_bermasalah = [];
 while ($baris = mysqli_fetch_array($query_va)) {
     $id_alternatif   = $baris['id_alternatif'];
     $nama_alternatif = $baris['nama_alternatif'];
-    $query           = mysqli_query($koneksi, "SELECT * FROM matriks WHERE id_alternatif = '$id_alternatif'");
-    $jumlah_data     = mysqli_num_rows($query);
+
+    $stmt = mysqli_prepare($koneksi, "SELECT * FROM matriks WHERE id_alternatif = ?");
+    mysqli_stmt_bind_param($stmt, 's', $id_alternatif);
+    mysqli_stmt_execute($stmt);
+    $result      = mysqli_stmt_get_result($stmt);
+    $jumlah_data = mysqli_num_rows($result);
+    mysqli_stmt_close($stmt);
 
     if ($jumlah_data < $jumlah_kriteria) {
         $cek++;
@@ -58,24 +70,26 @@ mysqli_query($koneksi, "DELETE FROM peringkat");
 $kondisi_lahan = [];
 
 foreach ($subkriteria_ids as $id_krit => $id_subkrit) {
-    $query_nilai_lahan = mysqli_query($koneksi, "
-        SELECT nilai_subkriteria 
-        FROM subkriteria 
-        WHERE id_subkriteria = '$id_subkrit'
-    ");
+    $stmt = mysqli_prepare($koneksi, "SELECT nilai_subkriteria FROM subkriteria WHERE id_subkriteria = ?");
+    mysqli_stmt_bind_param($stmt, 's', $id_subkrit);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $data   = mysqli_fetch_array($result);
+    mysqli_stmt_close($stmt);
 
-    if ($data = mysqli_fetch_array($query_nilai_lahan)) {
-        $kondisi_lahan[$id_krit] = floatval($data['nilai_subkriteria']);
-    } else {
-        $kondisi_lahan[$id_krit] = 0;
-    }
+    $kondisi_lahan[$id_krit] = $data ? floatval($data['nilai_subkriteria']) : 0;
 }
 
 // ========================================================================
 // AMBIL DATA ALTERNATIF
 // ========================================================================
-$query_all_alternatif = mysqli_query($koneksi, "SELECT DISTINCT id_alternatif FROM matriks WHERE id_alternatif != 0 ORDER BY id_alternatif");
-$alternatif_list      = [];
+$query_all_alternatif = mysqli_query($koneksi, "
+    SELECT DISTINCT id_alternatif FROM matriks 
+    WHERE id_alternatif != 0 
+    ORDER BY id_alternatif
+");
+
+$alternatif_list = [];
 while ($row = mysqli_fetch_array($query_all_alternatif)) {
     $alternatif_list[] = $row['id_alternatif'];
 }
@@ -91,17 +105,19 @@ if (empty($alternatif_list)) {
 $query_kriteria = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
 $kriteria_data  = [];
 $kriteria_types = [];
+
 while ($k = mysqli_fetch_array($query_kriteria)) {
     $kriteria_data[]                   = $k;
     $kriteria_types[$k['id_kriteria']] = $k['jenis_kriteria'];
 }
 
-// Jumlah kriteria dan alternatif
 $n              = count($kriteria_data);
 $m              = count($alternatif_list);
 $alternatif_ids = $alternatif_list;
 
-// Tabel Random Index (RI) Saaty
+// ========================================================================
+// TABEL RANDOM INDEX (RI) SAATY
+// ========================================================================
 $RI_TABLE = [
     1  => 0.00,
     2  => 0.00,
@@ -116,27 +132,31 @@ $RI_TABLE = [
 ];
 
 // ========================================================================
-// SUSUN MATRIKS PERBANDINGAN AHP DARI DATABASE
+// AHP — LANGKAH 1: Susun Matriks Perbandingan dari Database
 // ========================================================================
 $matriks_perbandingan = [];
 foreach ($kriteria_data as $idx_i => $k_i) {
     $id_i = $k_i['id_kriteria'];
     foreach ($kriteria_data as $idx_j => $k_j) {
         $id_j = $k_j['id_kriteria'];
-        $q    = mysqli_query($koneksi, "
+
+        $stmt = mysqli_prepare($koneksi, "
             SELECT nilai FROM matriks_perbandingan
-            WHERE id_kriteria_i = '$id_i' AND id_kriteria_j = '$id_j'
+            WHERE id_kriteria_i = ? AND id_kriteria_j = ?
         ");
-        $row  = mysqli_fetch_array($q);
+        mysqli_stmt_bind_param($stmt, 'ss', $id_i, $id_j);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row    = mysqli_fetch_array($result);
+        mysqli_stmt_close($stmt);
+
         $matriks_perbandingan[$idx_i][$idx_j] = $row ? floatval($row['nilai']) : 1.0;
     }
 }
 
 // ========================================================================
-// HITUNG AHP
+// AHP — LANGKAH 2: Jumlah Setiap Kolom
 // ========================================================================
-
-// Langkah 1: Jumlah setiap kolom
 $jumlah_kolom = array_fill(0, $n, 0.0);
 for ($j = 0; $j < $n; $j++) {
     for ($i = 0; $i < $n; $i++) {
@@ -144,7 +164,9 @@ for ($j = 0; $j < $n; $j++) {
     }
 }
 
-// Langkah 2: Normalisasi matriks
+// ========================================================================
+// AHP — LANGKAH 3: Normalisasi Matriks
+// ========================================================================
 $matriks_norm = [];
 for ($i = 0; $i < $n; $i++) {
     for ($j = 0; $j < $n; $j++) {
@@ -154,28 +176,29 @@ for ($i = 0; $i < $n; $i++) {
     }
 }
 
-// Langkah 3: Bobot prioritas = rata-rata baris
+// ========================================================================
+// AHP — LANGKAH 4: Bobot Prioritas = Rata-rata Baris
+// ========================================================================
 $bobot = [];
 for ($i = 0; $i < $n; $i++) {
     $bobot[$i] = array_sum($matriks_norm[$i]) / $n;
 }
 
-// Langkah 4: Lambda maksimum
+// ========================================================================
+// AHP — LANGKAH 5: Lambda Maksimum
+// ========================================================================
 $lambda_maks = 0;
 for ($j = 0; $j < $n; $j++) {
     $lambda_maks += $jumlah_kolom[$j] * $bobot[$j];
 }
 
-// Langkah 5: CI
+// ========================================================================
+// AHP — LANGKAH 6: CI, RI, CR
+// ========================================================================
 $CI = ($n > 1) ? ($lambda_maks - $n) / ($n - 1) : 0;
-
-// Langkah 6: RI
 $RI = isset($RI_TABLE[$n]) ? $RI_TABLE[$n] : 1.49;
-
-// Langkah 7: CR
 $CR = ($RI > 0) ? $CI / $RI : 0;
 
-// Status konsistensi
 if ($CR < 0.1) {
     $status_konsistensi = 'Konsisten';
 } elseif ($CR < 0.2) {
@@ -185,36 +208,69 @@ if ($CR < 0.1) {
 }
 
 // ========================================================================
-// SUSUN MATRIKS KEPUTUSAN TOPSIS DARI TABEL matriks
+// VALIDASI 3: Guard CR — hentikan proses jika matriks tidak konsisten
+// Bobot AHP tidak valid jika CR >= 0.1, sehingga hasil TOPSIS pun
+// tidak dapat dipercaya. Minta admin untuk merevisi matriks perbandingan.
+// ========================================================================
+if ($CR >= 0.1) {
+    $_SESSION['error_detail'] = "Matriks perbandingan AHP tidak konsisten "
+        . "(CR = " . round($CR * 100, 2) . "%). "
+        . "Harap revisi matriks perbandingan kriteria sebelum melanjutkan.";
+    header("Location: menu-utama.php?validasi=cr_error");
+    exit;
+}
+
+// ========================================================================
+// TOPSIS — LANGKAH 1: Susun Matriks Keputusan dari Database
 // ========================================================================
 $matriks = [];
 foreach ($alternatif_list as $idx_i => $id_alt) {
     foreach ($kriteria_data as $idx_j => $k) {
         $id_krit = $k['id_kriteria'];
-        $q       = mysqli_query($koneksi, "
+
+        $stmt = mysqli_prepare($koneksi, "
             SELECT s.nilai_subkriteria
             FROM matriks m
             JOIN subkriteria s ON m.id_subkriteria = s.id_subkriteria
-            WHERE m.id_alternatif = '$id_alt' AND m.id_kriteria = '$id_krit'
+            WHERE m.id_alternatif = ? AND m.id_kriteria = ?
         ");
-        $row                    = mysqli_fetch_array($q);
+        mysqli_stmt_bind_param($stmt, 'ss', $id_alt, $id_krit);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row    = mysqli_fetch_array($result);
+        mysqli_stmt_close($stmt);
+
         $matriks[$idx_i][$idx_j] = $row ? floatval($row['nilai_subkriteria']) : 0;
     }
 }
 
 // ========================================================================
-// METODE TOPSIS
+// Siapkan nilai mentah petani per index kolom
 // ========================================================================
+$nilai_petani_raw = [];
+foreach ($kriteria_data as $idx_j => $k) {
+    $id_krit                  = $k['id_kriteria'];
+    $nilai_petani_raw[$idx_j] = isset($kondisi_lahan[$id_krit])
+        ? floatval($kondisi_lahan[$id_krit])
+        : 0;
+}
 
-// Langkah 1: Normalisasi Vector
+// ========================================================================
+// TOPSIS — LANGKAH 2: Normalisasi Vektor
+//
+// Rumus : r_ij = x_ij / sqrt( Σ x_ij² )
+//
+// Denominator dihitung HANYA dari alternatif (petani TIDAK ikut).
+// Tujuan: normalisasi stabil — tidak berubah setiap kali petani
+// mengganti input kondisi lahan.
+// ========================================================================
 $R            = [];
 $denominators = [];
 
 for ($j = 0; $j < $n; $j++) {
-    $col_values = array_column($matriks, $j);
-    $sum_sq     = 0;
-    foreach ($col_values as $val) {
-        $sum_sq += $val * $val;
+    $sum_sq = 0;
+    for ($i = 0; $i < $m; $i++) {
+        $sum_sq += $matriks[$i][$j] * $matriks[$i][$j];
     }
     $denom            = sqrt($sum_sq);
     $denominators[$j] = $denom;
@@ -224,7 +280,10 @@ for ($j = 0; $j < $n; $j++) {
     }
 }
 
-// Langkah 2: Matriks Terbobot
+// ========================================================================
+// TOPSIS — LANGKAH 3: Matriks Terbobot Alternatif
+// Rumus: y_ij = w_j * r_ij
+// ========================================================================
 $Y = [];
 for ($i = 0; $i < $m; $i++) {
     for ($j = 0; $j < $n; $j++) {
@@ -233,40 +292,61 @@ for ($i = 0; $i < $m; $i++) {
 }
 
 // ========================================================================
-// NORMALISASI INPUT PETANI
+// TOPSIS — LANGKAH 4: Normalisasi & Pembobotan Input Petani
+//
+// Petani dinormalisasi menggunakan denominator SAMA dengan alternatif
+// agar berada dalam ruang vektor yang sama.
 // ========================================================================
 $r_petani = [];
 $y_petani = [];
 
 for ($j = 0; $j < $n; $j++) {
-    $id_krit      = $kriteria_data[$j]['id_kriteria'];
-    $nilai_petani = isset($kondisi_lahan[$id_krit]) ? $kondisi_lahan[$id_krit] : 0;
-    $denom        = $denominators[$j];
-
-    $r_petani[$j] = ($denom == 0) ? 0 : $nilai_petani / $denom;
+    $r_petani[$j] = ($denominators[$j] == 0) ? 0 : $nilai_petani_raw[$j] / $denominators[$j];
     $y_petani[$j] = $r_petani[$j] * $bobot[$j];
 }
 
 // ========================================================================
-// Langkah 3: Solusi Ideal
+// TOPSIS — LANGKAH 5: Solusi Ideal Positif (A+) dan Negatif (A-)
+//
+// PENDEKATAN: Modified TOPSIS — Kesesuaian terhadap Kondisi Petani
+//
+// A+ = kondisi petani terbobot
+//      → Varietas terbaik = yang paling mirip dengan kondisi lahan petani
+//      → Setiap input petani berbeda, ranking bisa berbeda (dinamis)
+//
+// A- = nilai terburuk dari alternatif SAJA (petani tidak ikut)
+//      - Benefit: nilai terkecil dari kolom alternatif
+//      - Cost   : nilai terbesar dari kolom alternatif
+//      → A- stabil, tidak dipengaruhi input petani
 // ========================================================================
+$y_plus  = $y_petani; // A+ = kondisi petani sebagai acuan ideal
 
-// A+ = Input petani terbobot
-$y_plus = $y_petani;
-
-// A- = Nilai ekstrem berdasarkan benefit/cost
 $y_minus = [];
 for ($j = 0; $j < $n; $j++) {
-    $col     = array_column($Y, $j);
     $id_krit = $kriteria_data[$j]['id_kriteria'];
     $jenis   = $kriteria_types[$id_krit];
 
-    $y_minus[$j] = ($jenis == 'Benefit') ? min($col) : max($col);
+    // Hanya dari kolom alternatif
+    $col = [];
+    for ($i = 0; $i < $m; $i++) {
+        $col[] = $Y[$i][$j];
+    }
+
+    if ($jenis == 'Benefit') {
+        $y_minus[$j] = min($col); // Benefit: terkecil = terburuk
+    } else {
+        $y_minus[$j] = max($col); // Cost: terbesar = terburuk
+    }
 }
 
-// Langkah 4: Hitung Separasi
+// ========================================================================
+// TOPSIS — LANGKAH 6: Jarak Separasi ke A+ dan A-
+// Rumus: D+_i = sqrt( Σ (y+_j - y_ij)² )
+//        D-_i = sqrt( Σ (y-_j - y_ij)² )
+// ========================================================================
 $D_plus  = [];
 $D_minus = [];
+
 for ($i = 0; $i < $m; $i++) {
     $sum_plus  = 0;
     $sum_minus = 0;
@@ -278,7 +358,11 @@ for ($i = 0; $i < $m; $i++) {
     $D_minus[$i] = sqrt($sum_minus);
 }
 
-// Langkah 5: Hitung Nilai Preferensi
+// ========================================================================
+// TOPSIS — LANGKAH 7: Nilai Preferensi (Closeness Coefficient)
+// Rumus: C_i = D-_i / (D+_i + D-_i)
+// Range: 0 – 1. Semakin tinggi = semakin dekat ke kondisi petani
+// ========================================================================
 $scores = [];
 for ($i = 0; $i < $m; $i++) {
     $denom      = $D_plus[$i] + $D_minus[$i];
@@ -286,12 +370,58 @@ for ($i = 0; $i < $m; $i++) {
 }
 
 // ========================================================================
+// LANGKAH 8: Ranking descending (skor tertinggi = ranking 1)
+// ========================================================================
+$ranking = array_keys($scores);
+usort($ranking, fn($a, $b) => $scores[$b] <=> $scores[$a]);
+
+// ========================================================================
+// INFORMASI TAMBAHAN: Jarak tiap alternatif ke kondisi petani
+// Digunakan sebagai informasi pelengkap di halaman hasil,
+// BUKAN sebagai dasar ranking.
+// ========================================================================
+$D_ke_petani = [];
+for ($i = 0; $i < $m; $i++) {
+    $sum = 0;
+    for ($j = 0; $j < $n; $j++) {
+        $sum += pow($Y[$i][$j] - $y_petani[$j], 2);
+    }
+    $D_ke_petani[$i] = sqrt($sum);
+}
+
+// ========================================================================
+// INFORMASI TAMBAHAN: Posisi Petani (C_petani)
+// Menghitung seberapa dekat kondisi petani dengan solusi ideal alternatif
+// Murni info tambahan, tidak mempengaruhi ranking
+// ========================================================================
+$D_plus_petani  = 0;
+$D_minus_petani = 0;
+
+for ($j = 0; $j < $n; $j++) {
+    $D_plus_petani  += pow($y_plus[$j]  - $y_petani[$j], 2);
+    $D_minus_petani += pow($y_minus[$j] - $y_petani[$j], 2);
+}
+
+$D_plus_petani  = sqrt($D_plus_petani);   // = 0, karena A+ = petani
+$D_minus_petani = sqrt($D_minus_petani);
+
+$denom_petani = $D_plus_petani + $D_minus_petani;
+$C_petani     = ($denom_petani == 0) ? 1.0 : $D_minus_petani / $denom_petani;
+// Catatan: C_petani selalu 1.0 karena A+ = petani itu sendiri (D+ = 0)
+
+// ========================================================================
 // AMBIL NAMA ALTERNATIF DAN KRITERIA
 // ========================================================================
 $alternatif_names = [];
 foreach ($alternatif_ids as $id_alt) {
-    $q = mysqli_query($koneksi, "SELECT nama_alternatif FROM alternatif WHERE id_alternatif = '$id_alt'");
-    if ($row = mysqli_fetch_array($q)) {
+    $stmt = mysqli_prepare($koneksi, "SELECT nama_alternatif FROM alternatif WHERE id_alternatif = ?");
+    mysqli_stmt_bind_param($stmt, 's', $id_alt);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row    = mysqli_fetch_array($result);
+    mysqli_stmt_close($stmt);
+
+    if ($row) {
         $alternatif_names[$id_alt] = $row['nama_alternatif'];
     }
 }
@@ -305,16 +435,20 @@ foreach ($kriteria_data as $krit) {
 // SIMPAN DATA HASIL KE SESSION
 // ========================================================================
 $_SESSION['data_hasil'] = [
+    // Data referensi
     'kondisi_lahan'        => $kondisi_lahan,
     'alternatif_list'      => $alternatif_list,
     'alternatif_ids'       => $alternatif_ids,
     'alternatif_names'     => $alternatif_names,
     'kriteria_data'        => $kriteria_data,
+    'kriteria'             => $kriteria_data,   // alias untuk cetak-hasil.php
     'kriteria_names'       => $kriteria_names,
+    'kriteria_types'       => $kriteria_types,
     'n'                    => $n,
     'm'                    => $m,
+
+    // AHP
     'matriks_perbandingan' => $matriks_perbandingan,
-    'matriks'              => $matriks,
     'jumlah_kolom'         => $jumlah_kolom,
     'matriks_norm'         => $matriks_norm,
     'bobot'                => $bobot,
@@ -325,20 +459,33 @@ $_SESSION['data_hasil'] = [
     'CR_persen'            => round($CR * 100, 4),
     'konsisten'            => ($CR < 0.1),
     'status_konsistensi'   => $status_konsistensi,
+
+    // TOPSIS — matriks
+    'matriks'              => $matriks,
     'R'                    => $R,
     'Y'                    => $Y,
     'denominators'         => $denominators,
+
+    // TOPSIS — petani
+    'nilai_petani_raw'     => $nilai_petani_raw,
     'r_petani'             => $r_petani,
     'y_petani'             => $y_petani,
+    'D_plus_petani'        => round($D_plus_petani, 6),
+    'D_minus_petani'       => round($D_minus_petani, 6),
+    'C_petani'             => round($C_petani, 6),
+
+    // TOPSIS — hasil
     'y_plus'               => $y_plus,
     'y_minus'              => $y_minus,
     'D_plus'               => $D_plus,
     'D_minus'              => $D_minus,
+    'D_ke_petani'          => $D_ke_petani,  // info tambahan
     'scores'               => $scores,
+    'ranking'              => $ranking,
 ];
 
 // ========================================================================
-// SIMPAN HASIL KE DATABASE
+// SIMPAN HASIL KE DATABASE (Prepared Statement)
 // ========================================================================
 $success   = true;
 $error_msg = "";
@@ -351,7 +498,7 @@ for ($i = 0; $i < $m; $i++) {
         INSERT INTO peringkat (id_alternatif, nilai_peringkat) 
         VALUES (?, ?)
     ");
-    mysqli_stmt_bind_param($stmt, 'id', $id_alt, $nilai);
+    mysqli_stmt_bind_param($stmt, 'sd', $id_alt, $nilai);
     $exec = mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
