@@ -363,7 +363,7 @@ for ($i = 0; $i < $m; $i++) {
 }
 
 // ========================================================================
-// LANGKAH 8: Ranking descending (skor tertinggi = ranking 1)
+// LANGKAH 8: Ranking (skor tertinggi = ranking 1)
 // ========================================================================
 $ranking = array_keys($scores);
 usort($ranking, fn($a, $b) => $scores[$b] <=> $scores[$a]);
@@ -389,12 +389,11 @@ for ($j = 0; $j < $n; $j++) {
     $D_minus_petani += pow($y_minus[$j] - $y_petani[$j], 2);
 }
 
-$D_plus_petani  = sqrt($D_plus_petani);   // = 0, karena A+ = petani
+$D_plus_petani  = sqrt($D_plus_petani);  
 $D_minus_petani = sqrt($D_minus_petani);
 
 $denom_petani = $D_plus_petani + $D_minus_petani;
 $C_petani     = ($denom_petani == 0) ? 1.0 : $D_minus_petani / $denom_petani;
-// Catatan: C_petani selalu 1.0 karena A+ = petani itu sendiri (D+ = 0)
 
 // ========================================================================
 // AMBIL NAMA ALTERNATIF DAN KRITERIA
