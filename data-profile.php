@@ -21,15 +21,21 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
     <link href="css/styles_dash.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+    <style>
+        .sb-sidenav-light .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .sb-sidenav-light .nav-link.active .sb-nav-link-icon {
+            color: #0d6efd !important;
+        }
+    </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary hstack gap-3">
-        <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="menu-utama.php">Benih Tomat</a>
-        <!-- Sidebar Toggle-->
+        <a class="navbar-brand ps-3" href="menu-utama.php">Varietas Karet</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-        <!-- Navbar-->
         <ul class="navbar-nav ms-auto pe-2">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -44,11 +50,13 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </li>
         </ul>
     </nav>
+
+    <!-- Modal Keluar -->
     <div class="modal fade" id="keluar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Keluar dari Sistem</h1>
+                    <h1 class="modal-title fs-5">Keluar dari Sistem</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form>
@@ -63,6 +71,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </div>
         </div>
     </div>
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
@@ -73,48 +82,38 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
                             Dashboard
                         </a>
+
+                        <?php if ($_SESSION['level'] == "Admin") { ?>
                         <div class="sb-sidenav-menu-heading">Proses</div>
-                        <?php
-                        if ($_SESSION['level'] == "Admin") {
-                            echo "
-                                <a class='nav-link' href='data-kriteria.php'>
-                                    <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                    Data Kriteria
-                                </a>
-                                <a class='nav-link' href='data-subkriteria.php'>
-                                    <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                    Data Subkriteria
-                                </a>
-                                <a class='nav-link' href='data-matriks-perbandingan.php'>
-                                    <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                    Data Matriks Perbandingan
-                                </a>
-                                ";
-                        }
-                        ?>
+                        <a class="nav-link" href="data-kriteria.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Kriteria
+                        </a>
+                        <a class="nav-link" href="data-subkriteria.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Subkriteria
+                        </a>
+                        <a class="nav-link" href="data-matriks-perbandingan.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Matriks Perbandingan
+                        </a>
                         <a class="nav-link" href="jenis-varietas.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
                         </a>
-                        <!-- <a class="nav-link" href="data-perhitungan.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-calculator"></i></div>
-                            Data Perhitungan
-                        </a> -->
+                        <?php } ?>
+
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
                             Data Profil
                         </a>
-                        <?php
-                        if ($_SESSION['level'] == "Admin") {
-                            echo "
-                                <a class='nav-link' href='data-pengguna.php'>
-                                    <div class='sb-nav-link-icon'><i class='fas fa-users'></i></div>
-                                    Data Pengguna
-                                </a>
-                                ";
-                        }
-                        ?>
+                        <?php if ($_SESSION['level'] == "Admin") { ?>
+                        <a class="nav-link" href="data-pengguna.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                            Data Pengguna
+                        </a>
+                        <?php } ?>
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#keluar">
                             <div class="sb-nav-link-icon"><i class="fas fa-sign-out-alt"></i></div>
                             Keluar
@@ -127,6 +126,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                 </div>
             </nav>
         </div>
+
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
@@ -140,56 +140,71 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             if ($validasi == "sukses") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Profil berhasil diperbarui!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Profil berhasil diperbarui!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "error") {
                                 echo "
                                     <div class='alert alert-danger alert-dismissible fade show mb-3' role='alert'>
-                                        Proses gagal!
+                                        <i class='fas fa-exclamation-circle'></i> <strong>Gagal!</strong> Proses gagal!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "warning") {
                                 echo "
                                     <div class='alert alert-warning alert-dismissible fade show mb-3' role='alert'>
-                                        Username telah digunakan, Silahkan menggunakan username yang berbeda!
+                                        <i class='fas fa-exclamation-triangle'></i> <strong>Peringatan!</strong> Username telah digunakan, silahkan gunakan username yang berbeda!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             }
                             ?>
                         </div>
+
                         <form class="row" action="proses.php" method="post">
                             <?php
-                            $id = $_SESSION['id'];
+                            $id    = $_SESSION['id'];
                             $baris = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM pengguna WHERE id_pengguna = '$id'"));
                             ?>
+                            <input type="hidden" name="id" value="<?= $id; ?>">
                             <div class="col-sm-6 mb-3">
-                                <input type="hidden" name="id" value="<?= $id; ?>">
                                 <label for="nama" class="form-label">Nama Lengkap</label>
-                                <input name="nama" value="<?= $baris['nama']; ?>" type="text" class="form-control" id="nama" placeholder="Nama Lengkap" placeholder="Username" pattern="[A-Za-z ]+" oninvalid="this.setCustomValidity('Input hanya huruf')" oninput="setCustomValidity('')" required autocomplete="off">
+                                <input name="nama" value="<?= $baris['nama']; ?>" type="text" class="form-control" id="nama"
+                                    placeholder="Nama Lengkap"
+                                    pattern="[A-Za-z ]+"
+                                    oninvalid="this.setCustomValidity('Input hanya huruf')"
+                                    oninput="setCustomValidity('')"
+                                    required autocomplete="off">
                             </div>
                             <div class="col-sm-6 mb-3">
                                 <label for="user" class="form-label">Username</label>
-                                <input name="user" value="<?= $baris['username']; ?>" type="text" class="form-control" id="user" placeholder="Username" pattern="[A-Za-z0-9]+" oninvalid="this.setCustomValidity('Input tidak boleh simbol')" oninput="setCustomValidity('')" autocomplete="off" readonly>
+                                <input name="user" value="<?= $baris['username']; ?>" type="text" class="form-control" id="user"
+                                    placeholder="Username"
+                                    autocomplete="off" readonly>
                             </div>
                             <div class="col-sm-6 mb-3">
-                                <label for="pass_old" class="form-label">Password Lama</label>
-                                <input name="pass_old" type="password" class="form-control" id="pass_old" placeholder="Password Lama" pattern="[^&#34;&#39;&#60;&#62;]+" minlength="5" autocomplete="off">
+                                <label for="pass_old" class="form-label">Password Lama <span class="text-muted small">(isi jika ingin ubah password)</span></label>
+                                <input name="pass_old" type="password" class="form-control" id="pass_old"
+                                    placeholder="Password Lama"
+                                    minlength="5" autocomplete="off">
                             </div>
                             <div class="col-sm-6 mb-3">
                                 <label for="pass_new" class="form-label">Password Baru</label>
-                                <input name="pass_new" type="password" class="form-control" id="pass_new" placeholder="Password Baru" pattern="[^&#34;&#39;&#60;&#62;]+" minlength="5" autocomplete="off">
+                                <input name="pass_new" type="password" class="form-control" id="pass_new"
+                                    placeholder="Password Baru"
+                                    minlength="5" autocomplete="off">
                             </div>
                             <div class="col-sm-6 mb-3">
                                 <label for="konfir" class="form-label">Konfirmasi Password</label>
-                                <input name="konfir" type="password" class="form-control" id="konfir" placeholder="Konfirmasi Password" pattern="[^&#34;&#39;&#60;&#62;]+" minlength="5" autocomplete="off">
+                                <input name="konfir" type="password" class="form-control" id="konfir"
+                                    placeholder="Konfirmasi Password"
+                                    minlength="5" autocomplete="off">
                             </div>
                             <div class="d-flex">
-                                <button name="edit-profile" class="btn btn-primary">Update</button>
-                                <a id="reset" class="btn btn-danger ms-2">Reset</a>
+                                <button name="edit-profile" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Update
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -197,29 +212,19 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </main>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts_dash.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.js"></script>
-    <script src="js/jquery.dataTables.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('#data-kriteria').DataTable();
-        })
-    </script>
-    <script type="text/javascript">
-        var reset = document.getElementById('reset');
-        var nama = document.getElementById('nama');
-        var user = document.getElementById('user');
-        var pass_old = document.getElementById('pass_old');
-        var pass_new = document.getElementById('pass_new');
-        var konfir = document.getElementById('konfir');
-
-        reset.addEventListener('click', function() {
-            nama = "";
-            user = "";
-            pass_old.value = "";
-            pass_new.value = "";
-            konfir.value = "";
+            var currentPage = window.location.pathname.split('/').pop().split('?')[0];
+            $('.sb-sidenav .nav-link').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.split('?')[0] === currentPage) {
+                    $(this).addClass('active');
+                }
+            });
         });
     </script>
 </body>

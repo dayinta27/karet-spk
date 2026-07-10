@@ -36,25 +36,8 @@ foreach ($kriteria_list as $ki) {
     }
 }
 
-// Fungsi bulatkan ke nilai Saaty terdekat
-function closestSaatyPHP($val) {
-    $saaty = [1, 2, 3, 4, 5, 6, 7, 8, 9,
-              1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9];
-    $closest = $saaty[0];
-    $minDiff = abs($val - $saaty[0]);
-    foreach ($saaty as $s) {
-        $diff = abs($val - $s);
-        if ($diff < $minDiff) {
-            $minDiff = $diff;
-            $closest = $s;
-        }
-    }
-    return $closest;
-}
-
-function formatSaaty($val) {
-    $rounded = closestSaatyPHP($val);
-    return $rounded >= 1 ? number_format($rounded, 0) : number_format($rounded, 3);
+function formatVal($val) {
+    return $val >= 1 ? number_format($val, 3) : number_format($val, 3);
 }
 ?>
 <!DOCTYPE html>
@@ -66,19 +49,25 @@ function formatSaaty($val) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Sistem Pendukung Keputusan Metode AHP TOPSIS</title>
+    <title>Sistem Pendukung Keputusan Metode SMART</title>
     <link rel="icon" type="image/x-icon" href="assets/img/logo.png" />
     <link href="css/styles_dash.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
     <style>
+        .sb-sidenav-light .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .sb-sidenav-light .nav-link.active .sb-nav-link-icon {
+            color: #0d6efd !important;
+        }
         .matriks-table th,
         .matriks-table td {
             text-align: center;
             vertical-align: middle;
             min-width: 90px;
         }
-
         .matriks-table input[type="number"] {
             width: 80px;
             text-align: center;
@@ -86,32 +75,26 @@ function formatSaaty($val) {
             border-radius: 4px;
             padding: 4px 6px;
         }
-
         .matriks-table .diagonal {
             background-color: #e9ecef;
             font-weight: bold;
             color: #495057;
         }
-
         .matriks-table thead th {
             background-color: #e55c2e;
             color: white;
         }
-
         .matriks-table tbody th {
             background-color: #e55c2e;
             color: white;
         }
-
         .upper-input {
             background-color: #ffffff;
         }
-
         .lower-input {
             background-color: #f8f9fa;
             color: #555;
         }
-
         .info-box {
             background-color: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -120,7 +103,6 @@ function formatSaaty($val) {
             margin-bottom: 16px;
             font-size: 0.9rem;
         }
-
         .skala-box {
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -128,7 +110,6 @@ function formatSaaty($val) {
             padding: 16px;
             margin-bottom: 20px;
         }
-
         .skala-box table th {
             background-color: #e55c2e;
             color: white;
@@ -185,20 +166,18 @@ function formatSaaty($val) {
                             Dashboard
                         </a>
                         <div class="sb-sidenav-menu-heading">Proses</div>
-                        <?php if ($_SESSION['level'] == "Admin") { ?>
-                            <a class="nav-link" href="data-kriteria.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
-                                Data Kriteria
-                            </a>
-                            <a class="nav-link" href="data-subkriteria.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
-                                Data Subkriteria
-                            </a>
-                            <a class="nav-link active" href="data-matriks-perbandingan.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Data Matriks Perbandingan
-                            </a>
-                        <?php } ?>
+                        <a class="nav-link" href="data-kriteria.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Kriteria
+                        </a>
+                        <a class="nav-link" href="data-subkriteria.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Subkriteria
+                        </a>
+                        <a class="nav-link" href="data-matriks-perbandingan.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                            Data Matriks Perbandingan
+                        </a>
                         <a class="nav-link" href="jenis-varietas.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
@@ -208,12 +187,10 @@ function formatSaaty($val) {
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
                             Data Profil
                         </a>
-                        <?php if ($_SESSION['level'] == "Admin") { ?>
-                            <a class="nav-link" href="data-pengguna.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                                Data Pengguna
-                            </a>
-                        <?php } ?>
+                        <a class="nav-link" href="data-pengguna.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                            Data Pengguna
+                        </a>
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#keluar">
                             <div class="sb-nav-link-icon"><i class="fas fa-sign-out-alt"></i></div>
                             Keluar
@@ -238,12 +215,12 @@ function formatSaaty($val) {
                     <!-- Notifikasi -->
                     <?php if ($validasi == "sukses"): ?>
                         <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-                            Matriks perbandingan berhasil disimpan!
+                            <i class="fas fa-check-circle"></i> <strong>Berhasil!</strong> Matriks perbandingan berhasil disimpan!
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php elseif ($validasi == "error"): ?>
                         <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-                            Proses gagal! Silakan coba lagi.
+                            <i class="fas fa-exclamation-circle"></i> <strong>Gagal!</strong> Proses gagal! Silakan coba lagi.
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
@@ -316,7 +293,6 @@ function formatSaaty($val) {
                                                             $id_j  = $kj['id_kriteria'];
                                                             $nilai = $matriks_db[$id_i][$id_j] ?? 1;
                                                         ?>
-
                                                             <?php if ($idx_i == $idx_j): ?>
                                                                 <!-- Diagonal -->
                                                                 <td class="diagonal"><strong>1</strong></td>
@@ -327,7 +303,7 @@ function formatSaaty($val) {
                                                                     <input
                                                                         type="number"
                                                                         name="matriks[<?= $id_i ?>][<?= $id_j ?>]"
-                                                                        value="<?= formatSaaty($nilai) ?>"
+                                                                        value="<?= number_format($nilai, 3, '.', '') ?>"
                                                                         min="0.111"
                                                                         max="9"
                                                                         step="any"
@@ -342,7 +318,7 @@ function formatSaaty($val) {
                                                                 <td>
                                                                     <input
                                                                         type="number"
-                                                                        value="<?= ($matriks_db[$id_j][$id_i] != 0) ? formatSaaty(1 / $matriks_db[$id_j][$id_i]) : 1 ?>"
+                                                                        value="<?= ($matriks_db[$id_j][$id_i] != 0) ? number_format(1 / $matriks_db[$id_j][$id_i], 3, '.', '') : 1 ?>"
                                                                         min="0.111"
                                                                         max="9"
                                                                         step="any"
@@ -382,28 +358,18 @@ function formatSaaty($val) {
     <script src="js/jquery.dataTables.js"></script>
 
     <script>
-        // Bulatkan ke nilai Saaty terdekat
-        function closestSaaty(val) {
-            const saaty = [1, 2, 3, 4, 5, 6, 7, 8, 9,
-                           1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9];
-            let closest = saaty[0];
-            let minDiff = Math.abs(val - saaty[0]);
-            saaty.forEach(function(s) {
-                let diff = Math.abs(val - s);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    closest = s;
+        $(document).ready(function() {
+            // Tandai menu sidebar aktif sesuai halaman yang sedang dibuka
+            var currentPage = window.location.pathname.split('/').pop().split('?')[0];
+            $('.sb-sidenav .nav-link').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.split('?')[0] === currentPage) {
+                    $(this).addClass('active');
                 }
             });
-            return closest;
-        }
+        });
 
-        function formatSaaty(val) {
-            const rounded = closestSaaty(val);
-            return rounded >= 1 ? rounded.toFixed(0) : rounded.toFixed(3);
-        }
-
-        // Segitiga atas diisi → update segitiga bawah
+        // Segitiga atas diisi → update segitiga bawah (FIX: tanpa pembulatan Saaty)
         document.querySelectorAll('.upper-input').forEach(function(input) {
             input.addEventListener('input', function() {
                 const i   = this.getAttribute('data-i');
@@ -415,7 +381,7 @@ function formatSaaty($val) {
                 );
                 if (lower) {
                     if (!isNaN(val) && val > 0) {
-                        lower.value = formatSaaty(1 / val);
+                        lower.value = (1 / val).toFixed(3);
                     } else {
                         lower.value = '';
                     }
@@ -423,7 +389,7 @@ function formatSaaty($val) {
             });
         });
 
-        // Segitiga bawah diisi → update segitiga atas
+        // Segitiga bawah diisi → update segitiga atas (FIX: tanpa pembulatan Saaty)
         document.querySelectorAll('.lower-input').forEach(function(input) {
             input.addEventListener('input', function() {
                 const i   = this.getAttribute('data-i');
@@ -435,7 +401,7 @@ function formatSaaty($val) {
                 );
                 if (upper) {
                     if (!isNaN(val) && val > 0) {
-                        upper.value = formatSaaty(1 / val);
+                        upper.value = (1 / val).toFixed(3);
                     } else {
                         upper.value = '';
                     }

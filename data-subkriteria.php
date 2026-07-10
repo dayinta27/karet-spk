@@ -21,20 +21,26 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Sistem Pendukung Keputusan Metode SMARTT</title>
+    <title>Sistem Pendukung Keputusan Metode SMART</title>
     <link rel="icon" type="image/x-icon" href="assets/img/logo.png" />
     <link href="css/styles_dash.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+    <style>
+        .sb-sidenav-light .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .sb-sidenav-light .nav-link.active .sb-nav-link-icon {
+            color: #0d6efd !important;
+        }
+    </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary hstack gap-3">
-        <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="menu-utama.php">Varietas Karet</a>
-        <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-        <!-- Navbar-->
         <ul class="navbar-nav ms-auto pe-2">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -49,11 +55,13 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </li>
         </ul>
     </nav>
+
+    <!-- Modal Keluar -->
     <div class="modal fade" id="keluar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Keluar dari Sistem</h1>
+                    <h1 class="modal-title fs-5">Keluar dari Sistem</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form>
@@ -68,6 +76,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </div>
         </div>
     </div>
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
@@ -101,10 +110,6 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
                         </a>
-                        <!-- <a class="nav-link" href="data-perhitungan.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-calculator"></i></div>
-                            Data Perhitungan
-                        </a> -->
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
@@ -132,6 +137,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                 </div>
             </nav>
         </div>
+
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
@@ -141,62 +147,79 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                     </ol>
                     <div class="row">
                         <div class="col-sm-12">
+
+                            <!-- ===================== ALERT VALIDASI ===================== -->
                             <?php
                             if ($validasi == "sukses-tambah") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Subkriteria berhasil ditambahkan!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Subkriteria berhasil ditambahkan!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "sukses-perbarui") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Subkriteria berhasil diperbarui!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Subkriteria berhasil diperbarui!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "sukses-hapus") {
                                 echo "
                                     <div class='alert alert-success alert-dismissible fade show mb-3' role='alert'>
-                                        Data Subkriteria berhasil dihapus!
+                                        <i class='fas fa-check-circle'></i> <strong>Berhasil!</strong> Data Subkriteria berhasil dihapus!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             } else if ($validasi == "error") {
                                 echo "
                                     <div class='alert alert-danger alert-dismissible fade show mb-3' role='alert'>
-                                        Proses gagal!
+                                        <i class='fas fa-exclamation-circle'></i> <strong>Gagal!</strong> Proses gagal!
                                         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                                     </div>
                                     ";
                             }
                             ?>
+                            <!-- =========================================================== -->
 
                             <?php
-                            $query = mysqli_query($koneksi, "SELECT * FROM kriteria");
-                            while ($baris = mysqli_fetch_array($query)) {
-                                $id = $baris['id_kriteria'];
+                            $q_kriteria = mysqli_query($koneksi, "SELECT * FROM kriteria");
+                            while ($baris_krit = mysqli_fetch_array($q_kriteria)) {
+                                $id_krit      = $baris_krit['id_kriteria'];
+                                $nama_krit    = $baris_krit['nama_kriteria'];
+                                $kode_krit    = $baris_krit['kode_kriteria'];
                             ?>
-                                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah_data<?= $id; ?>"><i class="fas fa-plus"></i> Tambah data</a>
-                                <h4 class="mt-2"><?= $baris['nama_kriteria'] . " (" . $baris['kode_kriteria'] . ")" ?></h4>
-                                <div class="modal fade" id="tambah_data<?= $id; ?>" tabindex="-1" aria-hidden="true">
+                                <!-- Tombol Tambah per Kriteria -->
+                                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah_data<?= $id_krit; ?>">
+                                    <i class="fas fa-plus"></i> Tambah data
+                                </a>
+                                <h4 class="mt-2"><?= $nama_krit . " (" . $kode_krit . ")"; ?></h4>
+
+                                <!-- Modal Tambah Subkriteria -->
+                                <div class="modal fade" id="tambah_data<?= $id_krit; ?>" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Tambah Data Subkriteria</h1>
+                                                <h1 class="modal-title fs-5">Tambah Data Subkriteria</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <form action="proses.php" method="post">
                                                 <div class="modal-body">
+                                                    <input type="hidden" name="id" value="<?= $id_krit; ?>">
                                                     <div class="form-floating mb-3">
-                                                        <input type="hidden" name="id" value="<?= $id; ?>">
-                                                        <input name="nama" class="form-control" id="inputEmail" type="text" placeholder="Nama Subkriteria" required autocomplete="off" />
-                                                        <label for="inputEmail">Nama Subkriteria</label>
+                                                        <input name="nama" class="form-control" type="text"
+                                                            placeholder="Nama Subkriteria"
+                                                            required autocomplete="off" />
+                                                        <label>Nama Subkriteria</label>
                                                     </div>
                                                     <div class="form-floating mb-3">
-                                                        <input name="nilai" class="form-control" id="inputEmail" type="text" placeholder="Nilai Subkriteria" pattern="[1-5]{1}" oninvalid="this.setCustomValidity('Input hanya angka minimal 1 dan maksimal 5')" oninput="setCustomValidity('')" required autocomplete="off" />
-                                                        <label for="inputEmail">Nilai Subkriteria</label>
+                                                        <input name="nilai" class="form-control" type="text"
+                                                            placeholder="Nilai Subkriteria"
+                                                            pattern="[1-5]{1}"
+                                                            oninvalid="this.setCustomValidity('Input hanya angka minimal 1 dan maksimal 5')"
+                                                            oninput="setCustomValidity('')"
+                                                            required autocomplete="off" />
+                                                        <label>Nilai Subkriteria</label>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -207,6 +230,8 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Tabel Subkriteria -->
                                 <div class="table-responsive my-3">
                                     <table class="table table-bordered" width="100%">
                                         <thead class="bg-primary">
@@ -219,18 +244,18 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $query_sub = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id'");
+                                            $q_sub_tabel = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id_krit'");
                                             $no = 1;
-                                            while ($baris_sub = mysqli_fetch_array($query_sub)) {
+                                            while ($baris_sub_tabel = mysqli_fetch_array($q_sub_tabel)) {
                                                 echo "
                                                     <tr>
                                                         <td class='text-center'>" . $no . "</td>
-                                                        <td class='text-center'>" . $baris_sub['nama_subkriteria'] . "</td>
-                                                        <td class='text-center'>" . $baris_sub['nilai_subkriteria'] . "</td>
+                                                        <td class='text-center'>" . $baris_sub_tabel['nama_subkriteria'] . "</td>
+                                                        <td class='text-center'>" . $baris_sub_tabel['nilai_subkriteria'] . "</td>
                                                         <td class='text-center'>
                                                             <div class='d-flex justify-content-center'>
-                                                                <a class='btn btn-warning me-2' data-bs-toggle='modal' data-bs-target='#edit_data" . $baris_sub['id_subkriteria'] . "'><i class='fas fa-pencil'></i></a>
-                                                                <a class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#hapus_data" . $baris_sub['id_subkriteria'] . "" . $baris_sub['id_kriteria'] . "'><i class='fas fa-trash'></i></a>
+                                                                <a class='btn btn-warning me-2' data-bs-toggle='modal' data-bs-target='#edit_data" . $baris_sub_tabel['id_subkriteria'] . "'><i class='fas fa-pencil'></i></a>
+                                                                <a class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#hapus_data" . $baris_sub_tabel['id_subkriteria'] . $baris_sub_tabel['id_kriteria'] . "'><i class='fas fa-trash'></i></a>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -241,32 +266,43 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <!-- Modal Edit & Hapus per Subkriteria -->
                                 <?php
-                                $query_sub = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id'");
-                                while ($baris_sub = mysqli_fetch_array($query_sub)) {
-                                    $id_sub = $baris_sub['id_subkriteria'];
-                                    $id_krit = $baris_sub['id_kriteria'];
+                                $q_sub_modal = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria = '$id_krit'");
+                                while ($baris_sub_modal = mysqli_fetch_array($q_sub_modal)) {
+                                    $id_sub      = $baris_sub_modal['id_subkriteria'];
+                                    $nama_sub    = $baris_sub_modal['nama_subkriteria'];
+                                    $nilai_sub   = $baris_sub_modal['nilai_subkriteria'];
+                                    $id_krit_sub = $baris_sub_modal['id_kriteria'];
                                 ?>
+                                    <!-- Modal Edit -->
                                     <div class="modal fade" id="edit_data<?= $id_sub; ?>" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Data Subkriteria</h1>
+                                                    <h1 class="modal-title fs-5">Edit Data Subkriteria</h1>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <form action="proses.php" method="post">
-                                                    <?php
-                                                    $baris_sub = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_subkriteria = '$id_sub'"));
-                                                    ?>
                                                     <div class="modal-body">
+                                                        <input type="hidden" name="id" value="<?= $id_sub; ?>">
                                                         <div class="form-floating mb-3">
-                                                            <input type="hidden" name="id" value="<?= $id_sub; ?>">
-                                                            <input name="nama" class="form-control" id="inputEmail" type="text" placeholder="Nama Subkriteria" value="<?= $baris_sub['nama_subkriteria']; ?>" required autocomplete="off" />
-                                                            <label for="inputEmail">Nama Subkriteria</label>
+                                                            <input name="nama" class="form-control" type="text"
+                                                                placeholder="Nama Subkriteria"
+                                                                value="<?= $nama_sub; ?>"
+                                                                required autocomplete="off" />
+                                                            <label>Nama Subkriteria</label>
                                                         </div>
                                                         <div class="form-floating mb-3">
-                                                            <input name="nilai" class="form-control" id="inputEmail" type="text" placeholder="Nilai Subkriteria" pattern="[1-5]{1}" oninvalid="this.setCustomValidity('Input hanya angka minimal 1 dan maksimal 5')" oninput="setCustomValidity('')" value="<?= $baris_sub['nilai_subkriteria']; ?>" required autocomplete="off" />
-                                                            <label for="inputEmail">Nilai Subkriteria</label>
+                                                            <input name="nilai" class="form-control" type="text"
+                                                                placeholder="Nilai Subkriteria"
+                                                                pattern="[1-5]{1}"
+                                                                oninvalid="this.setCustomValidity('Input hanya angka minimal 1 dan maksimal 5')"
+                                                                oninput="setCustomValidity('')"
+                                                                value="<?= $nilai_sub; ?>"
+                                                                required autocomplete="off" />
+                                                            <label>Nilai Subkriteria</label>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
@@ -277,43 +313,53 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="modal fade" id="hapus_data<?= $id_sub; ?><?= $id_krit; ?>" tabindex="-1" aria-hidden="true">
+
+                                    <!-- Modal Hapus -->
+                                    <div class="modal fade" id="hapus_data<?= $id_sub; ?><?= $id_krit_sub; ?>" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Data Subkriteria</h1>
+                                                    <h1 class="modal-title fs-5">Hapus Data Subkriteria</h1>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <form>
-                                                    <div class="modal-body">
-                                                        <p>Apakah anda yakin ingin menghapus subkriteria yang dipilih?</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <a class="btn btn-secondary" data-bs-dismiss="modal">Tidak</a>
-                                                        <a href="hapus-data-subkriteria.php?id_subkriteria=<?= $id_sub; ?>&id_kriteria=<?= $id_krit; ?>" class="btn btn-danger">Ya</a>
-                                                    </div>
-                                                </form>
+                                                <div class="modal-body">
+                                                    <p>Apakah anda yakin ingin menghapus subkriteria <strong><?= $nama_sub; ?></strong>?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a class="btn btn-secondary" data-bs-dismiss="modal">Tidak</a>
+                                                    <a href="hapus-data-subkriteria.php?id_subkriteria=<?= $id_sub; ?>&id_kriteria=<?= $id_krit_sub; ?>" class="btn btn-danger">
+                                                        <i class="fas fa-trash"></i> Ya
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                            <?php
-                                }
-                            }
-                            ?>
+                                <?php } ?>
+
+                            <?php } ?>
+
                         </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts_dash.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.js"></script>
     <script src="js/jquery.dataTables.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('#data-kriteria').DataTable();
-        })
+            // Tandai menu sidebar aktif sesuai halaman yang sedang dibuka
+            var currentPage = window.location.pathname.split('/').pop().split('?')[0];
+            $('.sb-sidenav .nav-link').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.split('?')[0] === currentPage) {
+                    $(this).addClass('active');
+                }
+            });
+        });
     </script>
 </body>
 

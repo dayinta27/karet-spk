@@ -226,7 +226,6 @@ if ($row_cek['total'] == 0) {
         <div class="header-print">
             <h3><i class="fas fa-leaf"></i> Sistem Pendukung Keputusan</h3>
             <h4>Rekomendasi Varietas Tanaman Karet</h4>
-            <p>Balai Pengkajian Teknologi Pertanian</p>
             <p>Metode AHP (Pembobotan) + TOPSIS (Perangkingan)</p>
         </div>
 
@@ -608,7 +607,7 @@ if ($row_cek['total'] == 0) {
 
         <!-- Footer -->
         <div class="footer-print">
-            <span>SPK Varietas Karet - Balai Pengkajian Teknologi Pertanian &copy; <?= date('Y'); ?></span>
+            <span>SPK Varietas Karet &copy; <?= date('Y'); ?></span>
             <span>Dicetak: <?= date('d/m/Y H:i'); ?> WIB</span>
         </div>
 

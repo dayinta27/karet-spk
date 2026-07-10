@@ -19,15 +19,21 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
     <link rel="icon" type="image/x-icon" href="assets/img/background.jpeg" />
     <link href="css/styles_dash.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+    <style>
+        .sb-sidenav-light .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .sb-sidenav-light .nav-link.active .sb-nav-link-icon {
+            color: #0d6efd !important;
+        }
+    </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary hstack gap-3">
-        <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="menu-utama.php">Varietas Karet</a>
-        <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-        <!-- Navbar-->
         <ul class="navbar-nav ms-auto pe-2">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -42,11 +48,13 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </li>
         </ul>
     </nav>
+
+    <!-- Modal Keluar -->
     <div class="modal fade" id="keluar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Keluar dari Sistem</h1>
+                    <h1 class="modal-title fs-5">Keluar dari Sistem</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form>
@@ -61,6 +69,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
             </div>
         </div>
     </div>
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
@@ -71,47 +80,38 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                             <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
                             Dashboard
                         </a>
-                        <!-- <div class="sb-sidenav-menu-heading">Proses</div> -->
-                        <?php
-                        if ($_SESSION['level'] == "Admin") {
-                            echo "
-                            <a class='nav-link' href='data-kriteria.php'>
-                                <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                Data Kriteria
-                            </a>
-                            <a class='nav-link' href='data-subkriteria.php'>
-                                <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                Data Subkriteria
-                            <a class='nav-link' href='data-matriks-perbandingan.php'>
-                                <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                Data Matriks Perbandingan
-                            </a>
-                            <a class='nav-link' href='jenis-varietas.php'>
-                                <div class='sb-nav-link-icon'><i class='fas fa-cube'></i></div>
-                                Jenis Varietas
-                            </a>
-                            ";
-                        }
-                        ?>
-                        <!-- <a class="nav-link" href="jenis-varietas.php">
+
+                        <?php if ($_SESSION['level'] == "Admin") { ?>
+                        <div class="sb-sidenav-menu-heading">Proses</div>
+                        <a class="nav-link" href="data-kriteria.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Kriteria
+                        </a>
+                        <a class="nav-link" href="data-subkriteria.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Subkriteria
+                        </a>
+                        <a class="nav-link" href="data-matriks-perbandingan.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                            Data Matriks Perbandingan
+                        </a>
+                        <a class="nav-link" href="jenis-varietas.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
                             Jenis Varietas
-                        </a> -->
+                        </a>
+                        <?php } ?>
+
                         <div class="sb-sidenav-menu-heading">Pengguna</div>
                         <a class="nav-link" href="data-profile.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
                             Data Profil
                         </a>
-                        <?php
-                        if ($_SESSION['level'] == "Admin") {
-                            echo "
-                            <a class='nav-link' href='data-pengguna.php'>
-                                <div class='sb-nav-link-icon'><i class='fas fa-users'></i></div>
-                                Data Pengguna
-                            </a>
-                            ";
-                        }
-                        ?>
+                        <?php if ($_SESSION['level'] == "Admin") { ?>
+                        <a class="nav-link" href="data-pengguna.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                            Data Pengguna
+                        </a>
+                        <?php } ?>
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#keluar">
                             <div class="sb-nav-link-icon"><i class="fas fa-sign-out-alt"></i></div>
                             Keluar
@@ -124,6 +124,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                 </div>
             </nav>
         </div>
+
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
@@ -131,6 +132,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Dashboard</li>
                     </ol>
+
                     <?php
                     if ($validasi == "sukses") {
                         echo "
@@ -155,113 +157,85 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                         ";
                     }
                     ?>
+
                     <div class="row">
-                        <?php
-                        if ($_SESSION['level'] == "Admin") {
-                            echo "
-                            <div class='col-sm-4'>
-                                <div class='card mb-4 border-bs-primary'>
-                                    <div class='card-body'>
-                                        <h5 class='card-title'>Data Kriteria</h5>
+                        <?php if ($_SESSION['level'] == "Admin") { ?>
+                            <div class="col-sm-4">
+                                <div class="card mb-4 border-bs-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Data Kriteria</h5>
                                     </div>
-                                    <div class='card-footer'>
-                                        <a class='text-dark' href='data-kriteria.php'>Lihat Detail<i class='fas fa-chevron-right ms-2'></i></a>
+                                    <div class="card-footer">
+                                        <a class="text-dark" href="data-kriteria.php">Lihat Detail <i class="fas fa-chevron-right ms-2"></i></a>
                                     </div>
                                 </div>
                             </div>
-                            <div class='col-sm-4'>
-                                <div class='card mb-4 border-bs-primary'>
-                                    <div class='card-body'>
-                                        <h5 class='card-title'>Data Subkriteria</h5>
+                            <div class="col-sm-4">
+                                <div class="card mb-4 border-bs-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Data Subkriteria</h5>
                                     </div>
-                                    <div class='card-footer'>
-                                        <a class='text-dark' href='data-subkriteria.php'>Lihat Detail<i class='fas fa-chevron-right ms-2'></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class='col-sm-4'>
-                                <div class='card mb-4 border-bs-primary'>
-                                    <div class='card-body'>
-                                        <h5 class='card-title'>Data Matriks Perbandingan</h5>
-                                    </div>
-                                    <div class='card-footer'>
-                                        <a class='text-dark' href='data-matriks-perbandingan.php'>Lihat Detail<i class='fas fa-chevron-right ms-2'></i></a>
+                                    <div class="card-footer">
+                                        <a class="text-dark" href="data-subkriteria.php">Lihat Detail <i class="fas fa-chevron-right ms-2"></i></a>
                                     </div>
                                 </div>
                             </div>
-                            <div class='col-sm-4'>
-                                <div class='card mb-4 border-bs-primary'>
-                                    <div class='card-body'>
-                                        <h5 class='card-title'>Jenis Varietas</h5>
+                            <div class="col-sm-4">
+                                <div class="card mb-4 border-bs-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Data Matriks Perbandingan</h5>
                                     </div>
-                                    <div class='card-footer'>
-                                        <a class='text-dark' href='jenis-varietas.php'>Lihat Detail<i class='fas fa-chevron-right ms-2'></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class='col-sm-4'>
-                                <div class='card mb-4 border-bs-primary'>
-                                    <div class='card-body'>
-                                        <h5 class='card-title'>Data Pengguna</h5>
-                                    </div>
-                                    <div class='card-footer'>
-                                        <a class='text-dark' href='data-pengguna.php'>
-                                            Lihat Detail <i class='fas fa-chevron-right ms-2'></i>
-                                        </a>
+                                    <div class="card-footer">
+                                        <a class="text-dark" href="data-matriks-perbandingan.php">Lihat Detail <i class="fas fa-chevron-right ms-2"></i></a>
                                     </div>
                                 </div>
                             </div>
-                            ";
-                        }
-                        ?>
+                            <div class="col-sm-4">
+                                <div class="card mb-4 border-bs-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Jenis Varietas</h5>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a class="text-dark" href="jenis-varietas.php">Lihat Detail <i class="fas fa-chevron-right ms-2"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="card mb-4 border-bs-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Data Pengguna</h5>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a class="text-dark" href="data-pengguna.php">Lihat Detail <i class="fas fa-chevron-right ms-2"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+
                         <?php if ($_SESSION['level'] == "User") { ?>
                         <div class="col-md-8 offset-md-2">
                             <div class="card shadow-lg border-0 p-4" style="border-radius:20px; background:#f3f3f3;">
-
                                 <h4 class="fw-bold mb-4">Input Kondisi Lingkungan</h4>
-
                                 <form action="proses-perhitungan.php" method="POST">
-
                                 <?php
                                 include "koneksi.php";
-
-                                $query_kriteria = mysqli_query($koneksi,"SELECT * FROM kriteria ORDER BY id_kriteria");
-
-                                while($k = mysqli_fetch_array($query_kriteria)) {
+                                $query_kriteria = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
+                                while ($k = mysqli_fetch_array($query_kriteria)) {
                                 ?>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">
-                                        <?= $k['nama_kriteria']; ?>
-                                    </label>
-
-                                    <select name="subkriteria[<?= $k['id_kriteria']; ?>]" 
-                                            class="form-select form-select-lg" required>
-
-                                        <option value="">-- Pilih --</option>
-
-                                        <?php
-                                        $id_krit = $k['id_kriteria'];
-
-                                        $query_sub = mysqli_query($koneksi,"
-                                            SELECT * FROM subkriteria 
-                                            WHERE id_kriteria='$id_krit'
-                                        ");
-
-                                        while($s = mysqli_fetch_array($query_sub)) {
-                                        ?>
-
-                                        <option value="<?= $s['id_subkriteria']; ?>">
-                                            <?= $s['nama_subkriteria']; ?>
-                                        </option>
-
-                                        <?php } ?>
-
-                                    </select>
-                                </div>
-
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold"><?= $k['nama_kriteria']; ?></label>
+                                        <select name="subkriteria[<?= $k['id_kriteria']; ?>]" class="form-select form-select-lg" required>
+                                            <option value="">-- Pilih --</option>
+                                            <?php
+                                            $id_krit   = $k['id_kriteria'];
+                                            $query_sub = mysqli_query($koneksi, "SELECT * FROM subkriteria WHERE id_kriteria='$id_krit'");
+                                            while ($s = mysqli_fetch_array($query_sub)) {
+                                            ?>
+                                                <option value="<?= $s['id_subkriteria']; ?>"><?= $s['nama_subkriteria']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
                                 <?php } ?>
-
                                 <button type="submit" name="masuk"
                                     class="btn btn-warning w-100 fw-bold py-3"
                                     style="border-radius:30px; font-size:18px;">
@@ -272,12 +246,27 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                         </div>
                         <?php } ?>
                     </div>
+
                 </div>
             </main>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts_dash.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Tandai menu sidebar aktif sesuai halaman yang sedang dibuka
+            var currentPage = window.location.pathname.split('/').pop().split('?')[0];
+            $('.sb-sidenav .nav-link').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.split('?')[0] === currentPage) {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -258,8 +258,6 @@ foreach ($kriteria_data as $idx_j => $k) {
 // ========================================================================
 // TOPSIS — LANGKAH 2: Normalisasi Vektor
 //
-// Rumus : r_ij = x_ij / sqrt( Σ x_ij² )
-//
 // Denominator dihitung HANYA dari alternatif (petani TIDAK ikut).
 // Tujuan: normalisasi stabil — tidak berubah setiap kali petani
 // mengganti input kondisi lahan.
@@ -293,9 +291,6 @@ for ($i = 0; $i < $m; $i++) {
 
 // ========================================================================
 // TOPSIS — LANGKAH 4: Normalisasi & Pembobotan Input Petani
-//
-// Petani dinormalisasi menggunakan denominator SAMA dengan alternatif
-// agar berada dalam ruang vektor yang sama.
 // ========================================================================
 $r_petani = [];
 $y_petani = [];
@@ -341,8 +336,6 @@ for ($j = 0; $j < $n; $j++) {
 
 // ========================================================================
 // TOPSIS — LANGKAH 6: Jarak Separasi ke A+ dan A-
-// Rumus: D+_i = sqrt( Σ (y+_j - y_ij)² )
-//        D-_i = sqrt( Σ (y-_j - y_ij)² )
 // ========================================================================
 $D_plus  = [];
 $D_minus = [];
@@ -375,11 +368,6 @@ for ($i = 0; $i < $m; $i++) {
 $ranking = array_keys($scores);
 usort($ranking, fn($a, $b) => $scores[$b] <=> $scores[$a]);
 
-// ========================================================================
-// INFORMASI TAMBAHAN: Jarak tiap alternatif ke kondisi petani
-// Digunakan sebagai informasi pelengkap di halaman hasil,
-// BUKAN sebagai dasar ranking.
-// ========================================================================
 $D_ke_petani = [];
 for ($i = 0; $i < $m; $i++) {
     $sum = 0;
@@ -392,7 +380,6 @@ for ($i = 0; $i < $m; $i++) {
 // ========================================================================
 // INFORMASI TAMBAHAN: Posisi Petani (C_petani)
 // Menghitung seberapa dekat kondisi petani dengan solusi ideal alternatif
-// Murni info tambahan, tidak mempengaruhi ranking
 // ========================================================================
 $D_plus_petani  = 0;
 $D_minus_petani = 0;
@@ -484,9 +471,6 @@ $_SESSION['data_hasil'] = [
     'ranking'              => $ranking,
 ];
 
-// ========================================================================
-// SIMPAN HASIL KE DATABASE (Prepared Statement)
-// ========================================================================
 $success   = true;
 $error_msg = "";
 

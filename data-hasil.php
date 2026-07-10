@@ -315,7 +315,7 @@ $validasi = isset($_GET['validasi']) ? trim($_GET['validasi']) : "";
                                             <!-- Tombol Aksi -->
                                             <div class="text-center mt-4">
                                                 <a href="cetak-hasil.php?validasi=sukses" class="btn btn-primary btn-lg">
-                                                    <i class="fas fa-print"></i> Cetak Hasil
+                                                    <i class="fas fa-print"></i> Lihat Perhitungan
                                                 </a>
                                                 <a href="menu-utama.php" class="btn btn-secondary btn-lg">
                                                     <i class="fas fa-redo"></i> Hitung Ulang
