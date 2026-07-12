@@ -211,7 +211,6 @@ if ($row_cek['total'] == 0) {
 </head>
 
 <body>
-
     <div class="print-container">
 
         <!-- HEADER -->
