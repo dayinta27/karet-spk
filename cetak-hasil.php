@@ -211,14 +211,6 @@ if ($row_cek['total'] == 0) {
 </head>
 
 <body>
-    <div class="btn-print-area">
-        <button class="btn-cetak" onclick="window.print()">
-            <i class="fas fa-print"></i> Cetak / Print
-        </button>
-        <a href="data-hasil.php?validasi=sukses" class="btn-kembali">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
-    </div>
 
     <div class="print-container">
 
@@ -605,6 +597,14 @@ if ($row_cek['total'] == 0) {
             </div>
         </div>
 
+    <div class="btn-print-area">
+        <!-- <button class="btn-cetak" onclick="window.print()">
+            <i class="fas fa-print"></i> Cetak / Print
+        </button> -->
+        <a href="data-hasil.php?validasi=sukses" class="btn-kembali">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+    </div>
         <!-- Footer -->
         <div class="footer-print">
             <span>SPK Varietas Karet &copy; <?= date('Y'); ?></span>
